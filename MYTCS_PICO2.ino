@@ -1,8 +1,10 @@
-// MYTCS N-GAUGE LAYOUT CONTROLLER (Pico 2W)
-// 2025/08/11
-// tokada
+/*
+  MYTCS_PICO2.ino
+  N-Gauge layout control system using Raspberry Pi Pico2 W
+  Automated railway driving available
+  (c)Toshi 2025
+*/
 
-//#include <ST7032.h>
 #include <time.h>
 #include <hardware/pwm.h>
 
@@ -16,7 +18,7 @@
 #include <Fonts/FreeMonoOblique9pt7b.h>
 #include <Fonts/FreeSansBold9pt7b.h>
 
-#include <XPT2046_Touchscreen.h>
+#include <XPT2046_Touchscreen.h> // Touch Screen
 
 #include "MYTCS_PICO2.h"
 
@@ -41,7 +43,6 @@ unsigned int gbHC166Data[NUM_HC166];
 
 // interrupt
 struct repeating_timer st_timer;
-//int timerCount=0; // 1ms counter
 
 // Flags
 
@@ -183,7 +184,7 @@ void setup() {
   // PWM周波数 f = sysclock / ((wrap+1) * clkdiv) より
   // clkdiv = sysclock / ((wrap+1) * f )
   slice_num = pwm_gpio_to_slice_num(2);
-  // PWM周期を設定
+  // PWM周期を設定 (20kHz)
   // PICO2 CLOCK = 150MHZ
   // clkdiv = (150,000,000 / 20,000 ) / 256(8bit) --> 29.296875
   pwm_set_clkdiv(slice_num, 29.296875);
@@ -353,8 +354,6 @@ void loop() {
     }
     tft.drawRGBBitmap(0, 0, canvas.getBuffer(), TFT_WIDTH, TFT_HEIGHT);
   }
-
-
 
   // TEST LED
   if(testLED){digitalWrite(LED_BUILTIN, HIGH);}

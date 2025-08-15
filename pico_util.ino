@@ -1,6 +1,8 @@
 /*
-    utilities for Pico2 and 2.8inch-TFT
-
+  pico_util.ino
+  N-Gauge layout control system using Raspberry Pi Pico2 W
+  TFT display utility functions
+  (c)Toshi 2025
 */
 
 #include "MYTCS_PICO2.h"

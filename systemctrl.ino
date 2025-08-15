@@ -1,25 +1,20 @@
+/*
+  systemctrl.ino
+  N-Gauge layout control system using Raspberry Pi Pico2 W
+  Train PWM power, serial communication, items on the layout, hardware UI on the board
+  (c)Toshi 2025
+*/
+
 #include "MYTCS_PICO2.h"
 
-// Power pack control / PWM
+// Power pack control using PWM
 void updatePowerPack(void){
-  // if(gbTrain.prevDirection != gbTrain.direction){
-  //   gbTrain.prevDirection = gbTrain.direction;
     if(gbTrain.direction==TRAIN_DIRECTION_CLOCKWISE){
-      // ledcWrite(PWM_TIMER_CH, 255);  // reset PWM to 100%
-      // ledcDetachPin(PIN_MOTER_M2);
-      // pinMode(PIN_MOTER_M2, OUTPUT);
-      // digitalWrite(PIN_MOTER_M2, HIGH); // 無効PINGはHIGH（Lを出力）
-      // ledcAttachPin(PIN_MOTER_M1, PWM_TIMER_CH);
       pwm_set_chan_level(slice_num, PWM_CHAN_A, 256-gbTrain.speed); // STOP = H (duty:100%)
-      pwm_set_chan_level(slice_num, PWM_CHAN_B, 256);
+      pwm_set_chan_level(slice_num, PWM_CHAN_B, 255);
 
     }
     else{
-      // ledcWrite(PWM_TIMER_CH, 255);  // reset PWM to 100%
-      // ledcDetachPin(PIN_MOTER_M1);
-      // pinMode(PIN_MOTER_M1, OUTPUT);
-      // digitalWrite(PIN_MOTER_M1, HIGH); // 無効PINGはHIGH（Lを出力）
-      // ledcAttachPin(PIN_MOTER_M2, PWM_TIMER_CH);
       pwm_set_chan_level(slice_num, PWM_CHAN_A, 255); // STOP = H (duty:100%)
       pwm_set_chan_level(slice_num, PWM_CHAN_B, 255-gbTrain.speed);
     }
@@ -32,7 +27,6 @@ void MySerialOutput( void )
   int chip;
   int i;
   unsigned int shifted_data=0;
-
 
   // initial
   digitalWrite(PIN_595_DAT, HIGH);
@@ -505,38 +499,7 @@ void updateHC595(void){
     gbHC595Data[4] = gbHC595Data[4]|BITMASK_7;
     gbHC595Data[4] = gbHC595Data[4]|BITMASK_8;
   }
-/*
-  // 4:Signal 4
-  if(gbSignal[3].color == SIGNAL_COLOR_RED){
-    gbHC595Data[4] = gbHC595Data[4]&(~BITMASK_4);
-    gbHC595Data[4] = gbHC595Data[4]|BITMASK_5;
-    gbHC595Data[4] = gbHC595Data[4]|BITMASK_6;
-  }
-  else if(gbSignal[3].color == SIGNAL_COLOR_YELLOW){
-    gbHC595Data[4] = gbHC595Data[4]|BITMASK_4;
-    gbHC595Data[4] = gbHC595Data[4]&(~BITMASK_5);
-    gbHC595Data[4] = gbHC595Data[4]|BITMASK_6;
-  }
-  else{
-    gbHC595Data[4] = gbHC595Data[4]|BITMASK_4;
-    gbHC595Data[4] = gbHC595Data[4]|BITMASK_5;
-    gbHC595Data[4] = gbHC595Data[4]&(~BITMASK_6);
-  }
 
-  // 4:Crossing 2
-  if(gbCrossing[1].led1 == true){
-    gbHC595Data[4] = gbHC595Data[4]|BITMASK_7;
-  }
-  else{
-    gbHC595Data[4] = gbHC595Data[4]&(~BITMASK_7);
-  }
-  if(gbCrossing[1].led2 == true){
-    gbHC595Data[4] = gbHC595Data[4]|BITMASK_8;
-  }
-  else{
-    gbHC595Data[4] = gbHC595Data[4]&(~BITMASK_8);
-  }
-*/
   MySerialOutput();
 }
 

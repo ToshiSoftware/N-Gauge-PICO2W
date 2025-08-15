@@ -1,3 +1,10 @@
+/*
+  MYTCS_PICO2.h
+  N-Gauge layout control system using Raspberry Pi Pico2 W
+  Automated railway driving available
+  (c)Toshi 2025
+*/
+
 #ifndef _MYTCS_PICO2_
 #define _MYTCS_PICO2_
 

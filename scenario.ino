@@ -1,4 +1,9 @@
-// suto drive scenario 
+/*
+  scenario.ino
+  N-Gauge layout control system using Raspberry Pi Pico2 W
+  Automated driving scenario functions
+  (c)Toshi 2025
+*/
 
 // #define BITMASK_1 0x01
 // #define BITMASK_2 0x02
