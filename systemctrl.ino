@@ -97,34 +97,12 @@ void MySerialInput( void )
   }
 }
 
-void HandleCtrlButton(void)
-{
-  int i;
-  int maskBit=0x01;
-  for (i = 0; i < NUM_CTRLBUTTON; i++) {
-    if((gbHC166Data[0] & maskBit) !=0)
-    {
-      gbCtrlButton[i].status = false;
-    }
-    else
-    {
-      gbCtrlButton[i].status = true;
-    }
-    maskBit = maskBit<<1;
-    // is updated
-    if(gbCtrlButton[i].prevStatus != gbCtrlButton[i].status ){
-      gbIsUiChanged = true;
-      gbCtrlButton[i].prevStatus = gbCtrlButton[i].status;
-    }
-  }
-}
-
 void HandleLedButton(void)
 {
   int i;
   int maskBit=0x01;
   for (i = 0; i < NUM_LEDBUTTON; i++) {
-    if((gbHC166Data[1] & maskBit) !=0)
+    if((gbHC166Data[HC166_LEDBT] & maskBit) !=0)
     {
       gbLedButton[i].status = false;
     }
@@ -161,82 +139,6 @@ void GetSpeedVr( void )
     gbTrain.prevSpeed = gbTrain.speed;
   }
 }
-
-
-// handle rotary encoder
-int cw[] = {1, 3, 0, 2};
-int ccw[] = {2, 0, 3, 1};
-
-void HandleEncoder(void) {
-  int i;
-  int pinValue;
-
-  // set encoder bit
-  gbEncoder[0].B = 0;
-  gbEncoder[0].A = 0;
-  gbEncoder[1].B = 0;
-  gbEncoder[1].A = 0;
-
-  // get HC166 data
-  if (gbHC166Data[0] & 0x10) gbEncoder[0].B = 1;
-  if (gbHC166Data[0] & 0x20) gbEncoder[0].A = 1;
-  if (gbHC166Data[0] & 0x40) gbEncoder[1].B = 1;
-  if (gbHC166Data[0] & 0x80) gbEncoder[1].A = 1;
-
-  for (i = 0; i < NUM_ENCODER; i++) {
-    // if encoder A/B is changed..
-    pinValue = gbEncoder[i].A + gbEncoder[i].B * 2;
-    pinValue %= 4;
-    if (gbEncoder[i].prev_pinValue != pinValue) {
-      if (pinValue == cw[gbEncoder[i].prev_pinValue]) gbEncoder[i].value++;
-      if (pinValue == ccw[gbEncoder[i].prev_pinValue]) gbEncoder[i].value--;
-      gbEncoder[i].prev_pinValue = pinValue;
-    }
-
-    // value for app
-    int dif;
-    dif = gbEncoder[i].value - gbEncoder[i].prev_appValue;
-    if(dif>ENCODER_TOLERANCE){
-      gbIsUiChanged = true;
-      gbEncoder[i].rotation_dir = ROTATION_PLUS;
-      gbEncoder[i].prev_appValue = gbEncoder[i].value;
-    }
-    else if(dif<-ENCODER_TOLERANCE){
-      gbIsUiChanged = true;
-      gbEncoder[i].rotation_dir = ROTATION_MINUS;    
-      gbEncoder[i].prev_appValue = gbEncoder[i].value;
-    }
-    else{
-      gbEncoder[i].rotation_dir = ROTATION_STOP;    
-    }
-  }
-}
-
-
-void updateEncoderValue(void)
-{
-    // encoder in test
-    if(gbEncoder[0].rotation_dir == ROTATION_PLUS){
-      gbEncoder[0].rotation_dir = ROTATION_STOP;
-      gbSystem.scenario_number++;
-      if(gbSystem.scenario_number >= NUM_SCENARIO_ID) gbSystem.scenario_number=0;
-    }
-    else if(gbEncoder[0].rotation_dir == ROTATION_MINUS){
-      gbEncoder[0].rotation_dir = ROTATION_STOP;
-      gbSystem.scenario_number--;
-      if(gbSystem.scenario_number < 0) gbSystem.scenario_number=NUM_SCENARIO_ID;
-    }
-    // encoder in test
-    if(gbEncoder[1].rotation_dir == ROTATION_PLUS){
-      gbEncoder[1].rotation_dir = ROTATION_STOP;
-      gbSystem.streetLight[0] = true;
-    }
-    else if(gbEncoder[1].rotation_dir == ROTATION_MINUS){
-      gbEncoder[1].rotation_dir = ROTATION_STOP;
-      gbSystem.streetLight[0] = false;
-    }
-  }
-
 
 // Signal handling
 void HandleSignal(void)
@@ -354,11 +256,9 @@ void DriveCrossing(void){
 /*
   HC595 map
     0: Button LED 1-8
-    1: Slider/VR indicator 1-8
-    2: Point 1, 2, 3, 4
-    3: Signal 1, 2, Crossing 1
-    4: Signal 3, 4, Crossing 2
-
+    1: Point 1, 2, 3, 4
+    2: Signal 1, 2, Crossing 1
+    3: Signal 3, 4, Crossing 2
 */
 
 void updateHC595(void){
@@ -366,138 +266,119 @@ void updateHC595(void){
   unsigned int bitMask;
 
   // 0: Button LED 1-8
-  gbHC595Data[0] = 0;
+  gbHC595Data[HC595_BTLED] = 0;
   bitMask=0x00000001;
   for(i=0; i<NUM_LEDBUTTON; i++){
     if(gbLedButton[i].led == true){
-      gbHC595Data[0] = gbHC595Data[0] | bitMask;
+      gbHC595Data[HC595_BTLED] = gbHC595Data[HC595_BTLED] | bitMask;
     }
     bitMask = (bitMask << 1);
   }
 
-  // 1:Slider/VR indicator 1-8
+  // 1:Point 1, 2, 3, 4
   {
-    int ledStep;
-
-    ledStep = (gbTrain.speed * 8 / gbTrain.maxSpeed);
-    if(ledStep<0) ledStep=0;
-    if(ledStep>7) ledStep=7;
-
-    gbHC595Data[1] = 0;
-    bitMask=0x00000001;
-    //if( gbTrain.speed != 0)
-    {
-      for(i=0; i<ledStep; i++){
-        bitMask = bitMask << 1;
-      }
-      gbHC595Data[1] = gbHC595Data[1] | bitMask;
-    }
-  }
-
-  // 2:Point 1, 2, 3, 4
-  {
-    gbHC595Data[2] = 0;
+    gbHC595Data[HC595_POINT] = 0;
     bitMask=0x00000001;
 
     for(i=0; i<NUM_POINT; i++){
       if(gbPoint[i].driveM1 == true){
-        gbHC595Data[2] = gbHC595Data[2]|bitMask;
+        gbHC595Data[HC595_POINT] = gbHC595Data[HC595_POINT]|bitMask;
       }
       else{
-        gbHC595Data[2] = gbHC595Data[2]&(~bitMask);
+        gbHC595Data[HC595_POINT] = gbHC595Data[HC595_POINT]&(~bitMask);
       }
       bitMask = bitMask << 1;
       if(gbPoint[i].driveM2 == true){
-        gbHC595Data[2] = gbHC595Data[2]|bitMask;
+        gbHC595Data[HC595_POINT] = gbHC595Data[HC595_POINT]|bitMask;
       }
       else{
-        gbHC595Data[2] = gbHC595Data[2]&(~bitMask);
+        gbHC595Data[HC595_POINT] = gbHC595Data[HC595_POINT]&(~bitMask);
       }
       bitMask = bitMask << 1;
     }
   }
 
-  // 3:Signal 1
-  gbHC595Data[3] = 0;
+  // 2:Signal 1
+  gbHC595Data[HC595_SIG1] = 0;
   if(gbSignal[0].color == SIGNAL_COLOR_RED){
-    gbHC595Data[3] = gbHC595Data[3]&(~BITMASK_1);
-    gbHC595Data[3] = gbHC595Data[3]|BITMASK_2;
-    gbHC595Data[3] = gbHC595Data[3]|BITMASK_3;
+    gbHC595Data[HC595_SIG1] = gbHC595Data[HC595_SIG1]&(~BITMASK_1);
+    gbHC595Data[HC595_SIG1] = gbHC595Data[HC595_SIG1]|BITMASK_2;
+    gbHC595Data[HC595_SIG1] = gbHC595Data[HC595_SIG1]|BITMASK_3;
   }
   else if(gbSignal[0].color == SIGNAL_COLOR_YELLOW){
-    gbHC595Data[3] = gbHC595Data[3]|BITMASK_1;
-    gbHC595Data[3] = gbHC595Data[3]&(~BITMASK_2);
-    gbHC595Data[3] = gbHC595Data[3]|BITMASK_3;
+    gbHC595Data[HC595_SIG1] = gbHC595Data[HC595_SIG1]|BITMASK_1;
+    gbHC595Data[HC595_SIG1] = gbHC595Data[HC595_SIG1]&(~BITMASK_2);
+    gbHC595Data[HC595_SIG1] = gbHC595Data[HC595_SIG1]|BITMASK_3;
   }
   else{
-    gbHC595Data[3] = gbHC595Data[3]|BITMASK_1;
-    gbHC595Data[3] = gbHC595Data[3]|BITMASK_2;
-    gbHC595Data[3] = gbHC595Data[3]&(~BITMASK_3);
+    gbHC595Data[HC595_SIG1] = gbHC595Data[HC595_SIG1]|BITMASK_1;
+    gbHC595Data[HC595_SIG1] = gbHC595Data[HC595_SIG1]|BITMASK_2;
+    gbHC595Data[HC595_SIG1] = gbHC595Data[HC595_SIG1]&(~BITMASK_3);
   }
 
   // 3:Signal 2
   if(gbSignal[1].color == SIGNAL_COLOR_RED){
-    gbHC595Data[3] = gbHC595Data[3]&(~BITMASK_4);
-    gbHC595Data[3] = gbHC595Data[3]|BITMASK_5;
-    gbHC595Data[3] = gbHC595Data[3]|BITMASK_6;
+    gbHC595Data[HC595_SIG1] = gbHC595Data[HC595_SIG1]&(~BITMASK_4);
+    gbHC595Data[HC595_SIG1] = gbHC595Data[HC595_SIG1]|BITMASK_5;
+    gbHC595Data[HC595_SIG1] = gbHC595Data[HC595_SIG1]|BITMASK_6;
   }
   else if(gbSignal[1].color == SIGNAL_COLOR_YELLOW){
-    gbHC595Data[3] = gbHC595Data[3]|BITMASK_4;
-    gbHC595Data[3] = gbHC595Data[3]&(~BITMASK_5);
-    gbHC595Data[3] = gbHC595Data[3]|BITMASK_6;
+    gbHC595Data[HC595_SIG1] = gbHC595Data[HC595_SIG1]|BITMASK_4;
+    gbHC595Data[HC595_SIG1] = gbHC595Data[HC595_SIG1]&(~BITMASK_5);
+    gbHC595Data[HC595_SIG1] = gbHC595Data[HC595_SIG1]|BITMASK_6;
   }
   else{
-    gbHC595Data[3] = gbHC595Data[3]|BITMASK_4;
-    gbHC595Data[3] = gbHC595Data[3]|BITMASK_5;
-    gbHC595Data[3] = gbHC595Data[3]&(~BITMASK_6);
+    gbHC595Data[HC595_SIG1] = gbHC595Data[HC595_SIG1]|BITMASK_4;
+    gbHC595Data[HC595_SIG1] = gbHC595Data[HC595_SIG1]|BITMASK_5;
+    gbHC595Data[HC595_SIG1] = gbHC595Data[HC595_SIG1]&(~BITMASK_6);
   }
 
   // 3:Crossing 1
   if(gbCrossing[0].led1 == true){
-    gbHC595Data[3] = gbHC595Data[3]|BITMASK_7;
+    gbHC595Data[HC595_SIG1] = gbHC595Data[HC595_SIG1]|BITMASK_7;
   }
   else{
-    gbHC595Data[3] = gbHC595Data[3]&(~BITMASK_7);
+    gbHC595Data[HC595_SIG1] = gbHC595Data[HC595_SIG1]&(~BITMASK_7);
   }
   if(gbCrossing[0].led2 == true){
-    gbHC595Data[3] = gbHC595Data[3]|BITMASK_8;
+    gbHC595Data[HC595_SIG1] = gbHC595Data[HC595_SIG1]|BITMASK_8;
   }
   else{
-    gbHC595Data[3] = gbHC595Data[3]&(~BITMASK_8);
+    gbHC595Data[HC595_SIG1] = gbHC595Data[HC595_SIG1]&(~BITMASK_8);
   }
 
   // 4:Signal 3
-  gbHC595Data[4] = 0;
+  gbHC595Data[HC595_SIG2] = 0;
   if(gbSignal[2].color == SIGNAL_COLOR_RED){
-    gbHC595Data[4] = gbHC595Data[4]&(~BITMASK_1);
-    gbHC595Data[4] = gbHC595Data[4]|BITMASK_2;
-    gbHC595Data[4] = gbHC595Data[4]|BITMASK_3;
+    gbHC595Data[HC595_SIG2] = gbHC595Data[HC595_SIG2]&(~BITMASK_1);
+    gbHC595Data[HC595_SIG2] = gbHC595Data[HC595_SIG2]|BITMASK_2;
+    gbHC595Data[HC595_SIG2] = gbHC595Data[HC595_SIG2]|BITMASK_3;
   }
   else if(gbSignal[2].color == SIGNAL_COLOR_YELLOW){
-    gbHC595Data[4] = gbHC595Data[4]|BITMASK_1;
-    gbHC595Data[4] = gbHC595Data[4]&(~BITMASK_2);
-    gbHC595Data[4] = gbHC595Data[4]|BITMASK_3;
+    gbHC595Data[HC595_SIG2] = gbHC595Data[HC595_SIG2]|BITMASK_1;
+    gbHC595Data[HC595_SIG2] = gbHC595Data[HC595_SIG2]&(~BITMASK_2);
+    gbHC595Data[HC595_SIG2] = gbHC595Data[HC595_SIG2]|BITMASK_3;
   }
   else{
-    gbHC595Data[4] = gbHC595Data[4]|BITMASK_1;
-    gbHC595Data[4] = gbHC595Data[4]|BITMASK_2;
-    gbHC595Data[4] = gbHC595Data[4]&(~BITMASK_3);
+    gbHC595Data[HC595_SIG2] = gbHC595Data[HC595_SIG2]|BITMASK_1;
+    gbHC595Data[HC595_SIG2] = gbHC595Data[HC595_SIG2]|BITMASK_2;
+    gbHC595Data[HC595_SIG2] = gbHC595Data[HC595_SIG2]&(~BITMASK_3);
   }
 
   // Street light
   if(gbSystem.streetLight[0]==false){
-    gbHC595Data[4] = gbHC595Data[4]&(~BITMASK_4);
-    gbHC595Data[4] = gbHC595Data[4]&(~BITMASK_5);
-    gbHC595Data[4] = gbHC595Data[4]&(~BITMASK_6);
-    gbHC595Data[4] = gbHC595Data[4]&(~BITMASK_7);
-    gbHC595Data[4] = gbHC595Data[4]&(~BITMASK_8);
+    gbHC595Data[HC595_SIG2] = gbHC595Data[HC595_SIG2]&(~BITMASK_4);
+    gbHC595Data[HC595_SIG2] = gbHC595Data[HC595_SIG2]&(~BITMASK_5);
+    gbHC595Data[HC595_SIG2] = gbHC595Data[HC595_SIG2]&(~BITMASK_6);
+    gbHC595Data[HC595_SIG2] = gbHC595Data[HC595_SIG2]&(~BITMASK_7);
+    gbHC595Data[HC595_SIG2] = gbHC595Data[HC595_SIG2]&(~BITMASK_8);
   }
   else{
-    gbHC595Data[4] = gbHC595Data[4]|BITMASK_4;
-    gbHC595Data[4] = gbHC595Data[4]|BITMASK_5;
-    gbHC595Data[4] = gbHC595Data[4]|BITMASK_6;
-    gbHC595Data[4] = gbHC595Data[4]|BITMASK_7;
-    gbHC595Data[4] = gbHC595Data[4]|BITMASK_8;
+    gbHC595Data[HC595_SIG2] = gbHC595Data[HC595_SIG2]|BITMASK_4;
+    gbHC595Data[HC595_SIG2] = gbHC595Data[HC595_SIG2]|BITMASK_5;
+    gbHC595Data[HC595_SIG2] = gbHC595Data[HC595_SIG2]|BITMASK_6;
+    gbHC595Data[HC595_SIG2] = gbHC595Data[HC595_SIG2]|BITMASK_7;
+    gbHC595Data[HC595_SIG2] = gbHC595Data[HC595_SIG2]|BITMASK_8;
   }
 
   MySerialOutput();
@@ -550,26 +431,6 @@ void updateButtonLedStatus(void){
   else{
     gbLedButton[6].led = false;
     gbLedButton[7].led = true;
-  }
-}
-
-void updateParamsFromCtrlButton(void){
-  // change system mode
-  if(gbCtrlButton[0].status==true && gbCtrlButton[1].status==false){
-    gbSystem.mode = SYSTEM_MODE_MANUAL;
-    gbSystem.scenario_counter = 0;
-  }
-  if(gbCtrlButton[0].status==false && gbCtrlButton[1].status==true){
-    gbSystem.mode = SYSTEM_MODE_AUTO;
-    initScenarioParams();
-  }
-  // panic
-  if(gbCtrlButton[2].status==true){
-    gbSystem.isEndless = false;
-  }
-  // panic
-  if(gbCtrlButton[3].status==true){
-    gbSystem.isEndless = true;
   }
 }
 

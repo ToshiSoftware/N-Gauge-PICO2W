@@ -40,12 +40,18 @@
 #define TIMER_UI_HANDLER_CH 1
 
 // num of chip
-#define NUM_HC166 3
-#define NUM_HC595 5
+#define NUM_HC166 2
+#define NUM_HC595 4
+
+#define HC595_BTLED 0
+#define HC595_POINT 1
+#define HC595_SIG1  2
+#define HC595_SIG2  3
+
+#define HC166_LEDBT  0
+#define HC166_SENSOR 1
 
 // number of items
-#define NUM_CTRLBUTTON 4
-#define NUM_ENCODER 2
 #define NUM_LEDBUTTON 8
 #define NUM_SPEED_LED 8
 #define NUM_POINT 4
@@ -212,25 +218,6 @@ typedef struct _Type_Sensor
   int status; // 0 or 1
 } Type_Sensor;
 
-// rotary encoder
-#define ENCODER_TOLERANCE 2
-#define ROTATION_STOP 0
-#define ROTATION_PLUS 1
-#define ROTATION_MINUS -1
-#define ENCODER_VALUE_MIN 0
-#define ENCODER_VALUE_MAX 255
-
-typedef struct _Type_EncoderBit
-{
-	// sdi
-	int A;
-	int B;
-	int prev_pinValue;
-	int value;
-	// value for app
-	int prev_appValue;
-	int rotation_dir; // 0:stop -1:++ 1:--
-} Type_EncoderBit;
 
 // global params
 extern Type_System     gbSystem;
@@ -245,8 +232,6 @@ extern Type_Crossing   gbCrossing[];
 extern Type_Sensor     gbSensor[];
 extern int gbIsUiChanged;
 extern int gbIsHC595Update;
-
-extern Type_EncoderBit gbEncoder[];
 
 extern unsigned int gbHC595Data[];
 extern unsigned int gbHC166Data[];
@@ -447,8 +432,6 @@ extern void MySerialInput( void );
 extern void HandleCtrlButton(void);
 extern void HandleLedButton(void);
 extern void GetSpeedVr( void );
-extern void HandleEncoder(void);
-extern void updateEncoderValue(void);
 extern void HandleSignal(void);
 extern void DrivePoint(void);
 extern void DriveCrossing(void);

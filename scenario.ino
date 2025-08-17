@@ -724,18 +724,18 @@ int isSensorActive(int sensor_id)
   
   switch(sensor_id)
   {
-    case 1: if((gbHC166Data[2] & BITMASK_1) == 0) { return true; } break;
-    case 2: if((gbHC166Data[2] & BITMASK_2) == 0) { return true; } break;
-    case 3: if((gbHC166Data[2] & BITMASK_3) == 0) { return true; } break;
-    case 4: if((gbHC166Data[2] & BITMASK_4) == 0) { return true; } break;
-    case 5: if((gbHC166Data[2] & BITMASK_5) == 0) { return true; } break;
-    case 6: if((gbHC166Data[2] & BITMASK_6) == 0) { return true; } break;
-    case 7: if((gbHC166Data[2] & BITMASK_7) == 0) { return true; } break;
-    case 8: if((gbHC166Data[2] & BITMASK_8) == 0) { return true; } break;
+    case 1: if((gbHC166Data[HC166_SENSOR] & BITMASK_1) == 0) { return true; } break;
+    case 2: if((gbHC166Data[HC166_SENSOR] & BITMASK_2) == 0) { return true; } break;
+    case 3: if((gbHC166Data[HC166_SENSOR] & BITMASK_3) == 0) { return true; } break;
+    case 4: if((gbHC166Data[HC166_SENSOR] & BITMASK_4) == 0) { return true; } break;
+    case 5: if((gbHC166Data[HC166_SENSOR] & BITMASK_5) == 0) { return true; } break;
+    case 6: if((gbHC166Data[HC166_SENSOR] & BITMASK_6) == 0) { return true; } break;
+    case 7: if((gbHC166Data[HC166_SENSOR] & BITMASK_7) == 0) { return true; } break;
+    case 8: if((gbHC166Data[HC166_SENSOR] & BITMASK_8) == 0) { return true; } break;
     default: break;
   }
 
-  //uintTempValue =  active; //gbHC166Data[2] & BITMASK_2;
+  //uintTempValue =  active; //gbHC166Data[HC166_SENSOR] & BITMASK_2;
 
   return false;
 }

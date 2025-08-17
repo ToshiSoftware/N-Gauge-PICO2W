@@ -42,7 +42,7 @@ bool My1msIntHandler(struct repeating_timer *t) {
   {
     flagAlt800 = 1-flagAlt800;
     flagDrawTFT = true;
-}
+  }
 
   // Point blink
   if(gbIntCounter % 500 == 0)
@@ -57,9 +57,7 @@ bool My1msIntHandler(struct repeating_timer *t) {
 void UsualTask(void){
   if(gbIsUiChanged==true){
     // UI
-    updateEncoderValue();
-    updateParamsFromCtrlButton();
-    updateParamsFromLcdButton();
+    updateParamsFromLcdButton(); // read gbLedButton[i].status and change Point/Crossing/Signal/ButtonLED status
 
     // set power pack driver
     updatePowerPack();
@@ -83,10 +81,7 @@ void PriorityTask(void){
   MySerialInput();  // read HC166 and then put into gbHC166Data
   setSensorTFTFromHC166();
   // serial in handler
-  HandleEncoder();  // read gbHC166Data[0](upper byte) and change gbEncoder[i].value: if changed, gbIsUiChanged = true;
-  HandleCtrlButton(); // read gbHC166Data[0](lower byte) and change gbCtrlButton[i].status: if changed, gbIsUiChanged = true;
   HandleLedButton(); // read gbHC166Data[1], and change gbLedButton[i].status: if changed, gbIsUiChanged = true;
-  //updateParamsFromLcdButton(); // read gbLedButton[i].status and change Point/Crossing/Signal/ButtonLED status
 
   // drive devices
   HandleSignal(); // read gbSignal[i].status, if changed goto signal sequence

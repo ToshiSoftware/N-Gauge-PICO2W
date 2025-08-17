@@ -88,6 +88,7 @@ void setParamFromTFTUI( void ) {
     if(tftButton[5].isPressed == true && tftButton[5].isPressedPrevious == false){
       gbIsUiChanged=true;
       gbSystem.mode = SYSTEM_MODE_AUTO;
+      initScenarioParams();
     }
     tftButton[5].isPressedPrevious = tftButton[5].isPressed;
 
@@ -484,36 +485,36 @@ void setSensorTFTFromHC166(void){
     for(int i=1; i<=8; i++){
         switch(i)
         {
-            case 1: if((gbHC166Data[2] & BITMASK_1) == 0) { tftSensor[0].isActive=true; } 
+            case 1: if((gbHC166Data[HC166_SENSOR] & BITMASK_1) == 0) { tftSensor[0].isActive=true; } 
                     else{tftSensor[0].isActive=false;}
                 break;
-            case 2: if((gbHC166Data[2] & BITMASK_2) == 0) { tftSensor[1].isActive=true; } 
+            case 2: if((gbHC166Data[HC166_SENSOR] & BITMASK_2) == 0) { tftSensor[1].isActive=true; } 
                     else{tftSensor[1].isActive=false;}
                 break;
-            case 3: if((gbHC166Data[2] & BITMASK_3) == 0) { tftSensor[2].isActive=true; } 
+            case 3: if((gbHC166Data[HC166_SENSOR] & BITMASK_3) == 0) { tftSensor[2].isActive=true; } 
                     else{tftSensor[2].isActive=false;}
                 break;
-            case 4: if((gbHC166Data[2] & BITMASK_4) == 0) { tftSensor[3].isActive=true; } 
+            case 4: if((gbHC166Data[HC166_SENSOR] & BITMASK_4) == 0) { tftSensor[3].isActive=true; } 
                     else{tftSensor[3].isActive=false;}
                 break;
-            case 5: if((gbHC166Data[2] & BITMASK_5) == 0) { tftSensor[4].isActive=true; } 
+            case 5: if((gbHC166Data[HC166_SENSOR] & BITMASK_5) == 0) { tftSensor[4].isActive=true; } 
                     else{tftSensor[4].isActive=false;}
                 break;
-            case 6: if((gbHC166Data[2] & BITMASK_6) == 0) { tftSensor[5].isActive=true; } 
+            case 6: if((gbHC166Data[HC166_SENSOR] & BITMASK_6) == 0) { tftSensor[5].isActive=true; } 
                     else{tftSensor[5].isActive=false;}
                 break;
-            case 7: if((gbHC166Data[2] & BITMASK_7) == 0) { tftSensor[6].isActive=true; } 
+            case 7: if((gbHC166Data[HC166_SENSOR] & BITMASK_7) == 0) { tftSensor[6].isActive=true; } 
                     else{tftSensor[6].isActive=false;}
                 break;
-            case 8: if((gbHC166Data[2] & BITMASK_8) == 0) { tftSensor[7].isActive=true; }  
+            case 8: if((gbHC166Data[HC166_SENSOR] & BITMASK_8) == 0) { tftSensor[7].isActive=true; }  
                     else{tftSensor[7].isActive=false;}
                 break;
             default: break;
         }
     }
     // redraw
-    if(sensorPrevious != (gbHC166Data[2]&BITMASK_FULL)){
+    if(sensorPrevious != (gbHC166Data[HC166_SENSOR]&BITMASK_FULL)){
         flagDrawTFT = true;
     }
-    sensorPrevious = (gbHC166Data[2]&BITMASK_FULL);
+    sensorPrevious = (gbHC166Data[HC166_SENSOR]&BITMASK_FULL);
 }

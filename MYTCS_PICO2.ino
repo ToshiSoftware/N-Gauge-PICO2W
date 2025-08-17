@@ -26,7 +26,6 @@
 Type_System     gbSystem;
 Type_Scenario   *gbScenario;
 Type_Train      gbTrain;
-Type_CtrlButton gbCtrlButton[NUM_CTRLBUTTON];
 Type_LedButton  gbLedButton[NUM_LEDBUTTON];
 Type_SpeedLED   gbSpeedLED[NUM_SPEED_LED];
 Type_Point      gbPoint[NUM_POINT];
@@ -35,8 +34,6 @@ Type_Crossing   gbCrossing[NUM_CROSSING];
 Type_Sensor     gbSensor[NUM_SENSOR];
 int gbIsUiChanged = 0;
 int gbIsHC595Update = 0;
-
-Type_EncoderBit gbEncoder[NUM_ENCODER];
 
 unsigned int gbHC595Data[NUM_HC595];
 unsigned int gbHC166Data[NUM_HC166];
@@ -100,12 +97,6 @@ void initParams(void)
   gbTrain.targetSpeed = 0;
   gbTrain.accelTime = 10;
 
-  // init ctrl buttons
-  for(i=0;i<NUM_CTRLBUTTON;i++){
-    gbCtrlButton[i].status=0;
-    gbCtrlButton[i].prevStatus=0;
-  }
-  
   // init led button
   for(i=0;i<NUM_LEDBUTTON;i++){
     gbLedButton[i].led=0;
@@ -151,8 +142,6 @@ void initParams(void)
   for(i=0;i<NUM_SENSOR;i++){
     gbSensor[i].status=0;
   } 
-  // sencoder reset
-  memset(&gbEncoder, 0, sizeof(Type_EncoderBit)*NUM_ENCODER);
 }
 
 // PWM slice num
