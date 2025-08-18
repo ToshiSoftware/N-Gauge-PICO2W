@@ -104,17 +104,17 @@ void HandleLedButton(void)
   for (i = 0; i < NUM_LEDBUTTON; i++) {
     if((gbHC166Data[HC166_LEDBT] & maskBit) !=0)
     {
-      gbLedButton[i].status = false;
+      gbBtLed[i].status = false;
     }
     else
     {
-      gbLedButton[i].status = true;
+      gbBtLed[i].status = true;
     }
     maskBit = maskBit<<1;
     // is updated
-    if(gbLedButton[i].prevStatus != gbLedButton[i].status ){
+    if(gbBtLed[i].prevStatus != gbBtLed[i].status ){
       gbIsUiChanged = true;
-      gbLedButton[i].prevStatus = gbLedButton[i].status;
+      gbBtLed[i].prevStatus = gbBtLed[i].status;
     }
   }
 }
@@ -269,7 +269,7 @@ void updateHC595(void){
   gbHC595Data[HC595_BTLED] = 0;
   bitMask=0x00000001;
   for(i=0; i<NUM_LEDBUTTON; i++){
-    if(gbLedButton[i].led == true){
+    if(gbBtLed[i].led == true){
       gbHC595Data[HC595_BTLED] = gbHC595Data[HC595_BTLED] | bitMask;
     }
     bitMask = (bitMask << 1);
@@ -399,78 +399,78 @@ void updateHC595(void){
 
 void updateButtonLedStatus(void){
   if(gbPoint[0].direction == POINT_DIRECTION_LEFT){
-    gbLedButton[0].led = true;
-    gbLedButton[1].led = false;    
+    gbBtLed[0].led = true;
+    gbBtLed[1].led = false;    
   }
   else{
-    gbLedButton[0].led = false;
-    gbLedButton[1].led = true;    
+    gbBtLed[0].led = false;
+    gbBtLed[1].led = true;    
   }
   if(gbPoint[1].direction == POINT_DIRECTION_LEFT){
-    gbLedButton[2].led = true;
-    gbLedButton[3].led = false;    
+    gbBtLed[2].led = true;
+    gbBtLed[3].led = false;    
   }
   else{
-    gbLedButton[2].led = false;
-    gbLedButton[3].led = true;    
+    gbBtLed[2].led = false;
+    gbBtLed[3].led = true;    
   }
 
   if(gbCrossing[0].status == CROSSING_STATUS_OFF){
-    gbLedButton[4].led = true;
-    gbLedButton[5].led = false;    
+    gbBtLed[4].led = true;
+    gbBtLed[5].led = false;    
   }
   else{
-    gbLedButton[4].led = false;
-    gbLedButton[5].led = true;    
+    gbBtLed[4].led = false;
+    gbBtLed[5].led = true;    
   }
 
   if(gbTrain.direction == TRAIN_DIRECTION_CLOCKWISE){
-    gbLedButton[6].led = true;
-    gbLedButton[7].led = false;
+    gbBtLed[6].led = true;
+    gbBtLed[7].led = false;
   }
   else{
-    gbLedButton[6].led = false;
-    gbLedButton[7].led = true;
+    gbBtLed[6].led = false;
+    gbBtLed[7].led = true;
   }
 }
 
 void updateParamsFromLcdButton(void){
   // Point 1
-  if(gbLedButton[0].status==true && gbLedButton[1].status==false){
+  if(gbBtLed[0].status==true && gbBtLed[1].status==false){
     gbPoint[0].direction = POINT_DIRECTION_LEFT;
     // change signal
     gbSignal[0].status = SIGNAL_STATUS_STOP;
   }
-  if(gbLedButton[0].status==false && gbLedButton[1].status==true){
+  if(gbBtLed[0].status==false && gbBtLed[1].status==true){
     gbPoint[0].direction = POINT_DIRECTION_RIGHT;
     // change signal
     gbSignal[0].status = SIGNAL_STATUS_GO;
   }  
   // Point 2
-  if(gbLedButton[2].status==true && gbLedButton[3].status==false){
+  if(gbBtLed[2].status==true && gbBtLed[3].status==false){
     gbPoint[1].direction = POINT_DIRECTION_LEFT;
     // change signal
     gbSignal[1].status = SIGNAL_STATUS_GO;
   }
-  if(gbLedButton[2].status==false && gbLedButton[3].status==true){
+  if(gbBtLed[2].status==false && gbBtLed[3].status==true){
     gbPoint[1].direction = POINT_DIRECTION_RIGHT;
     // change signal
     gbSignal[1].status = SIGNAL_STATUS_STOP;
   }  
   // crossing
-  if(gbLedButton[4].status==true && gbLedButton[5].status==false){
+  if(gbBtLed[4].status==true && gbBtLed[5].status==false){
     gbCrossing[0].status = CROSSING_STATUS_OFF;
   }
-  if(gbLedButton[4].status==false && gbLedButton[5].status==true){
+  if(gbBtLed[4].status==false && gbBtLed[5].status==true){
     gbCrossing[0].status = CROSSING_STATUS_ON;
   }  
   // train direction
-  if(gbLedButton[6].status==true && gbLedButton[7].status==false){
+  if(gbBtLed[6].status==true && gbBtLed[7].status==false){
     gbTrain.direction = TRAIN_DIRECTION_CLOCKWISE;
     // change signal
     gbSignal[2].status = SIGNAL_STATUS_GO;
   }
-  if(gbLedButton[6].status==false && gbLedButton[7].status==true){
+  if(gbBtLed[6].status==false && gbBtLed[7].status==true){
     gbTrain.direction = TRAIN_DIRECTION_COUNTERCLOCKWISE;
     // change signal
     gbSignal[2].status = SIGNAL_STATUS_STOP;

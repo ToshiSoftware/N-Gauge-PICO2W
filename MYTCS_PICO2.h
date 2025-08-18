@@ -144,19 +144,12 @@ typedef struct _Type_Train
 } Type_Train;
 
 // Button LED
-typedef struct _Type_CtrlButton
-{
-  int status; // 1=pressed
-  int prevStatus; // revious state
-} Type_CtrlButton;
-
-// Button LED
-typedef struct _Type_LedButton
+typedef struct _Type_BtLED
 {
   int led;   // 0 or 1
   int status; // 1=pressed
   int prevStatus; // revious state
-} Type_LedButton;
+} Type_BtLED;
 
 // Speed Indicator LED
 typedef struct _Type_SpeedLED
@@ -223,9 +216,7 @@ typedef struct _Type_Sensor
 extern Type_System     gbSystem;
 extern Type_Scenario   *gbScenario;
 extern Type_Train      gbTrain;
-extern Type_CtrlButton gbCtrlButton[];
-extern Type_LedButton  gbLedButton[];
-extern Type_SpeedLED   gbSpeedLED[];
+extern Type_BtLED  gbBtLed[];
 extern Type_Point      gbPoint[];
 extern Type_Signal     gbSignal[];
 extern Type_Crossing   gbCrossing[];

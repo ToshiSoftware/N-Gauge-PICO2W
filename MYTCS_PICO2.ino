@@ -26,8 +26,7 @@
 Type_System     gbSystem;
 Type_Scenario   *gbScenario;
 Type_Train      gbTrain;
-Type_LedButton  gbLedButton[NUM_LEDBUTTON];
-Type_SpeedLED   gbSpeedLED[NUM_SPEED_LED];
+Type_BtLED      gbBtLed[NUM_LEDBUTTON];
 Type_Point      gbPoint[NUM_POINT];
 Type_Signal     gbSignal[NUM_SIGNAL];
 Type_Crossing   gbCrossing[NUM_CROSSING];
@@ -99,14 +98,11 @@ void initParams(void)
 
   // init led button
   for(i=0;i<NUM_LEDBUTTON;i++){
-    gbLedButton[i].led=0;
-    gbLedButton[i].status=0;
-    gbLedButton[i].prevStatus=0;
+    gbBtLed[i].led=0;
+    gbBtLed[i].status=0;
+    gbBtLed[i].prevStatus=0;
   }
-  // init speed led
-  for(i=0;i<NUM_SPEED_LED;i++){
-    gbSpeedLED[i].led=0;
-  } 
+
   // init points
   for(i=0;i<NUM_POINT;i++) {
     gbPoint[i].direction=POINT_DIRECTION_LEFT;
