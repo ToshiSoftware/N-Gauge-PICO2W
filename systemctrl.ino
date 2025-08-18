@@ -97,7 +97,7 @@ void MySerialInput( void )
   }
 }
 
-void HandleLedButton(void)
+void HandleLedButton(void) // called every 1ms
 {
   int i;
   int maskBit=0x01;
@@ -398,83 +398,158 @@ void updateHC595(void){
 */
 
 void updateButtonLedStatus(void){
+  // if(gbPoint[0].direction == POINT_DIRECTION_LEFT){
+  //   gbBtLed[0].led = true;
+  //   gbBtLed[1].led = false;    
+  // }
+  // else{
+  //   gbBtLed[0].led = false;
+  //   gbBtLed[1].led = true;    
+  // }
+  // if(gbPoint[1].direction == POINT_DIRECTION_LEFT){
+  //   gbBtLed[2].led = true;
+  //   gbBtLed[3].led = false;    
+  // }
+  // else{
+  //   gbBtLed[2].led = false;
+  //   gbBtLed[3].led = true;    
+  // }
+
   if(gbPoint[0].direction == POINT_DIRECTION_LEFT){
     gbBtLed[0].led = true;
-    gbBtLed[1].led = false;    
   }
   else{
     gbBtLed[0].led = false;
-    gbBtLed[1].led = true;    
   }
   if(gbPoint[1].direction == POINT_DIRECTION_LEFT){
+    gbBtLed[1].led = true;
+  }
+  else{
+    gbBtLed[1].led = false;
+  }
+
+  // if(gbCrossing[0].status == CROSSING_STATUS_OFF){
+  //   gbBtLed[4].led = true;
+  //   gbBtLed[5].led = false;    
+  // }
+  // else{
+  //   gbBtLed[4].led = false;
+  //   gbBtLed[5].led = true;    
+  // }
+
+  // if(gbTrain.direction == TRAIN_DIRECTION_CLOCKWISE){
+  //   gbBtLed[6].led = true;
+  //   gbBtLed[7].led = false;
+  // }
+  // else{
+  //   gbBtLed[6].led = false;
+  //   gbBtLed[7].led = true;
+  // }
+
+  if(gbCrossing[0].status == CROSSING_STATUS_ON){
     gbBtLed[2].led = true;
-    gbBtLed[3].led = false;    
   }
   else{
     gbBtLed[2].led = false;
-    gbBtLed[3].led = true;    
-  }
-
-  if(gbCrossing[0].status == CROSSING_STATUS_OFF){
-    gbBtLed[4].led = true;
-    gbBtLed[5].led = false;    
-  }
-  else{
-    gbBtLed[4].led = false;
-    gbBtLed[5].led = true;    
   }
 
   if(gbTrain.direction == TRAIN_DIRECTION_CLOCKWISE){
-    gbBtLed[6].led = true;
-    gbBtLed[7].led = false;
+    gbBtLed[3].led = true;
   }
   else{
-    gbBtLed[6].led = false;
-    gbBtLed[7].led = true;
+    gbBtLed[3].led = false;
   }
 }
 
 void updateParamsFromLcdButton(void){
   // Point 1
-  if(gbBtLed[0].status==true && gbBtLed[1].status==false){
-    gbPoint[0].direction = POINT_DIRECTION_LEFT;
-    // change signal
-    gbSignal[0].status = SIGNAL_STATUS_STOP;
+  // if(gbBtLed[0].status==true && gbBtLed[1].status==false){
+  //   gbPoint[0].direction = POINT_DIRECTION_LEFT;
+  //   // change signal
+  //   gbSignal[0].status = SIGNAL_STATUS_STOP;
+  // }
+  // if(gbBtLed[0].status==false && gbBtLed[1].status==true){
+  //   gbPoint[0].direction = POINT_DIRECTION_RIGHT;
+  //   // change signal
+  //   gbSignal[0].status = SIGNAL_STATUS_GO;
+  // }  
+  // // Point 2
+  // if(gbBtLed[2].status==true && gbBtLed[3].status==false){
+  //   gbPoint[1].direction = POINT_DIRECTION_LEFT;
+  //   // change signal
+  //   gbSignal[1].status = SIGNAL_STATUS_GO;
+  // }
+  // if(gbBtLed[2].status==false && gbBtLed[3].status==true){
+  //   gbPoint[1].direction = POINT_DIRECTION_RIGHT;
+  //   // change signal
+  //   gbSignal[1].status = SIGNAL_STATUS_STOP;
+  // }  
+  
+  // PT1
+  if(gbBtLed[0].status==true && gbBtLed[0].prevBt==false){
+    if(gbPoint[0].direction == POINT_DIRECTION_LEFT){
+      gbPoint[0].direction = POINT_DIRECTION_RIGHT;
+      gbSignal[0].status = SIGNAL_STATUS_GO;
+    }
+    else{
+      gbPoint[0].direction = POINT_DIRECTION_LEFT;
+      gbSignal[0].status = SIGNAL_STATUS_STOP;      
+    }
   }
-  if(gbBtLed[0].status==false && gbBtLed[1].status==true){
-    gbPoint[0].direction = POINT_DIRECTION_RIGHT;
-    // change signal
-    gbSignal[0].status = SIGNAL_STATUS_GO;
-  }  
-  // Point 2
-  if(gbBtLed[2].status==true && gbBtLed[3].status==false){
-    gbPoint[1].direction = POINT_DIRECTION_LEFT;
-    // change signal
-    gbSignal[1].status = SIGNAL_STATUS_GO;
+  gbBtLed[0].prevBt = gbBtLed[0].status;
+
+  if(gbBtLed[1].status==true && gbBtLed[1].prevBt==false){
+    if(gbPoint[1].direction == POINT_DIRECTION_LEFT){
+      gbPoint[1].direction = POINT_DIRECTION_RIGHT;
+      gbSignal[1].status = SIGNAL_STATUS_GO;
+    }
+    else{
+      gbPoint[1].direction = POINT_DIRECTION_LEFT;
+      gbSignal[1].status = SIGNAL_STATUS_STOP;      
+    }
   }
-  if(gbBtLed[2].status==false && gbBtLed[3].status==true){
-    gbPoint[1].direction = POINT_DIRECTION_RIGHT;
-    // change signal
-    gbSignal[1].status = SIGNAL_STATUS_STOP;
-  }  
-  // crossing
-  if(gbBtLed[4].status==true && gbBtLed[5].status==false){
-    gbCrossing[0].status = CROSSING_STATUS_OFF;
+  gbBtLed[1].prevBt = gbBtLed[1].status;
+
+  // // crossing
+  // if(gbBtLed[4].status==true && gbBtLed[5].status==false){
+  //   gbCrossing[0].status = CROSSING_STATUS_OFF;
+  // }
+  // if(gbBtLed[4].status==false && gbBtLed[5].status==true){
+  //   gbCrossing[0].status = CROSSING_STATUS_ON;
+  // }  
+  // // train direction
+  // if(gbBtLed[6].status==true && gbBtLed[7].status==false){
+  //   gbTrain.direction = TRAIN_DIRECTION_CLOCKWISE;
+  //   // change signal
+  //   gbSignal[2].status = SIGNAL_STATUS_GO;
+  // }
+  // if(gbBtLed[6].status==false && gbBtLed[7].status==true){
+  //   gbTrain.direction = TRAIN_DIRECTION_COUNTERCLOCKWISE;
+  //   // change signal
+  //   gbSignal[2].status = SIGNAL_STATUS_STOP;
+  // }
+  if(gbBtLed[2].status==true && gbBtLed[2].prevBt==false){
+    if(gbCrossing[0].status == CROSSING_STATUS_OFF){
+      gbCrossing[0].status = CROSSING_STATUS_ON;
+    }
+    else{
+      gbCrossing[0].status = CROSSING_STATUS_OFF;
+    }
   }
-  if(gbBtLed[4].status==false && gbBtLed[5].status==true){
-    gbCrossing[0].status = CROSSING_STATUS_ON;
-  }  
-  // train direction
-  if(gbBtLed[6].status==true && gbBtLed[7].status==false){
-    gbTrain.direction = TRAIN_DIRECTION_CLOCKWISE;
-    // change signal
-    gbSignal[2].status = SIGNAL_STATUS_GO;
+  gbBtLed[2].prevBt = gbBtLed[2].status;
+
+  if(gbBtLed[3].status==true && gbBtLed[3].prevBt==false){
+    if(gbTrain.direction == TRAIN_DIRECTION_CLOCKWISE){
+      gbTrain.direction = TRAIN_DIRECTION_COUNTERCLOCKWISE;
+      gbSignal[2].status = SIGNAL_STATUS_STOP;
+    }
+    else{
+      gbTrain.direction = TRAIN_DIRECTION_CLOCKWISE;
+      gbSignal[2].status = SIGNAL_STATUS_GO;
+    }
   }
-  if(gbBtLed[6].status==false && gbBtLed[7].status==true){
-    gbTrain.direction = TRAIN_DIRECTION_COUNTERCLOCKWISE;
-    // change signal
-    gbSignal[2].status = SIGNAL_STATUS_STOP;
-  }
+   gbBtLed[3].prevBt = gbBtLed[3].status;
+
   //
   updateButtonLedStatus();
 }

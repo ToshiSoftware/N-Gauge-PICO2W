@@ -101,6 +101,7 @@ void initParams(void)
     gbBtLed[i].led=0;
     gbBtLed[i].status=0;
     gbBtLed[i].prevStatus=0;
+    gbBtLed[i].prevBt=0;
   }
 
   // init points

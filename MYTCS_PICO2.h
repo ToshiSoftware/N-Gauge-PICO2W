@@ -149,6 +149,7 @@ typedef struct _Type_BtLED
   int led;   // 0 or 1
   int status; // 1=pressed
   int prevStatus; // revious state
+  int prevBt; // 
 } Type_BtLED;
 
 // Speed Indicator LED
