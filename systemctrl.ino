@@ -501,11 +501,11 @@ void updateParamsFromLcdButton(void){
   if(gbBtLed[1].status==true && gbBtLed[1].prevBt==false){
     if(gbPoint[1].direction == POINT_DIRECTION_LEFT){
       gbPoint[1].direction = POINT_DIRECTION_RIGHT;
-      gbSignal[1].status = SIGNAL_STATUS_GO;
+      gbSignal[1].status = SIGNAL_STATUS_STOP;
     }
     else{
       gbPoint[1].direction = POINT_DIRECTION_LEFT;
-      gbSignal[1].status = SIGNAL_STATUS_STOP;      
+      gbSignal[1].status = SIGNAL_STATUS_GO;      
     }
   }
   gbBtLed[1].prevBt = gbBtLed[1].status;
