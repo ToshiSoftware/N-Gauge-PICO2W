@@ -9,3 +9,7 @@ Files beginning with KICAD contain the circuit diagrams and printed circuit boar
 A video of the system in action can be found here: 
 
 https://youtu.be/HFoJpa5_gIg
+
+You can see a diorama of the layout and the tram running here (Japanese only):
+
+https://youtu.be/IACruLuuN5w
