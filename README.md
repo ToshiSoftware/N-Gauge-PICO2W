@@ -2,9 +2,11 @@
 
 This project includes an N gauge controller and an autonomous driving system using the Raspberry Pi Pico 2 W.
 
-In the docs folder, pdf files are circuit diagrams and the files beginning with KICAD contain the printed circuit board design information for this system.
+## Design data
 
-### YouTube
+See the file: https://github.com/ToshiSoftware/N-Gauge-PICO2W/blob/main/docs/AboutFilesHere.md
+
+## YouTube
 
 A video of the system in action can be found here (Japanese only):
 
