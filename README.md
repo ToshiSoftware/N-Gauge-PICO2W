@@ -2,7 +2,7 @@
 
 This project includes an N gauge controller and an autonomous driving system using the Raspberry Pi Pico 2 W.
 
-Files beginning with KICAD contain the circuit diagrams and printed circuit board design information for this system.
+In the docs folder, pdf files are circuit diagrams and the files beginning with KICAD contain the printed circuit board design information for this system.
 
 ### YouTube
 
