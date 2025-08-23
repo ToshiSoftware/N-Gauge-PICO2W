@@ -7,6 +7,27 @@
 
 #include "MYTCS_PICO2.h"
 
+#define USE_8_BUTTONS 1
+
+/*
+  LED BUTTON map
+  1) #ifdef USE_8_BUTTONS
+    0: Point 1, left
+    1: Point 1, right
+    2: Point 2, left
+    3: Point 2, right
+    4: Crossing, Off
+    5: Crossing, On
+    6: Direction, CLOCKWISE
+    7: Direction, COUNTERCLOCKWISE
+  2) #ifndef USE_8_BUTTONS
+    0: Point 1, left/right alternatively
+    1: Point 2, left/right alternatively
+    2: Crossing, ON/OFF alternatively
+    3: Direction, CLOCKWISE/COUNTERCLOCKWISE alternatively
+*/
+
+
 // Power pack control using PWM
 void updatePowerPack(void){
     if(gbTrain.direction==TRAIN_DIRECTION_CLOCKWISE){
@@ -159,16 +180,19 @@ void HandleSignal(void)
       {
         gbSignal[i].color =  SIGNAL_COLOR_YELLOW;
         gbIsHC595Update = true;
+        flagDrawTFT = true;
       }
       if(gbSignal[i].counter==SIGNAL_YELLOW_DURATION)
       {
         if(gbSignal[i].status == SIGNAL_STATUS_STOP ){
           gbSignal[i].color =  SIGNAL_COLOR_RED;
           gbIsHC595Update = true;
+          flagDrawTFT = true;
         }
         else{
           gbSignal[i].color =  SIGNAL_COLOR_GREEN;         
           gbIsHC595Update = true;
+          flagDrawTFT = true;
         }
         gbSignal[i].isChanging = false;
       }
@@ -384,37 +408,25 @@ void updateHC595(void){
   MySerialOutput();
 }
 
-
-/*
-  LED BUTTON map
-    0: Point 1 <-
-    1: Point 1 ->
-    2: Point 2 <-
-    3: Point 2 ->
-    4: Crossing Off
-    5: Crossing On
-    6: Direction <-
-    7: Direction ->
-*/
-
 void updateButtonLedStatus(void){
-  // if(gbPoint[0].direction == POINT_DIRECTION_LEFT){
-  //   gbBtLed[0].led = true;
-  //   gbBtLed[1].led = false;    
-  // }
-  // else{
-  //   gbBtLed[0].led = false;
-  //   gbBtLed[1].led = true;    
-  // }
-  // if(gbPoint[1].direction == POINT_DIRECTION_LEFT){
-  //   gbBtLed[2].led = true;
-  //   gbBtLed[3].led = false;    
-  // }
-  // else{
-  //   gbBtLed[2].led = false;
-  //   gbBtLed[3].led = true;    
-  // }
-
+  #ifdef USE_8_BUTTONS
+  if(gbPoint[0].direction == POINT_DIRECTION_LEFT){
+    gbBtLed[0].led = true;
+    gbBtLed[1].led = false;    
+  }
+  else{
+    gbBtLed[0].led = false;
+    gbBtLed[1].led = true;    
+  }
+  if(gbPoint[1].direction == POINT_DIRECTION_LEFT){
+    gbBtLed[2].led = true;
+    gbBtLed[3].led = false;    
+  }
+  else{
+    gbBtLed[2].led = false;
+    gbBtLed[3].led = true;    
+  }
+  #else
   if(gbPoint[0].direction == POINT_DIRECTION_LEFT){
     gbBtLed[0].led = true;
   }
@@ -427,25 +439,27 @@ void updateButtonLedStatus(void){
   else{
     gbBtLed[1].led = false;
   }
+  #endif
 
-  // if(gbCrossing[0].status == CROSSING_STATUS_OFF){
-  //   gbBtLed[4].led = true;
-  //   gbBtLed[5].led = false;    
-  // }
-  // else{
-  //   gbBtLed[4].led = false;
-  //   gbBtLed[5].led = true;    
-  // }
+  #ifdef USE_8_BUTTONS
+  if(gbCrossing[0].status == CROSSING_STATUS_OFF){
+    gbBtLed[4].led = true;
+    gbBtLed[5].led = false;    
+  }
+  else{
+    gbBtLed[4].led = false;
+    gbBtLed[5].led = true;    
+  }
 
-  // if(gbTrain.direction == TRAIN_DIRECTION_CLOCKWISE){
-  //   gbBtLed[6].led = true;
-  //   gbBtLed[7].led = false;
-  // }
-  // else{
-  //   gbBtLed[6].led = false;
-  //   gbBtLed[7].led = true;
-  // }
-
+  if(gbTrain.direction == TRAIN_DIRECTION_CLOCKWISE){
+    gbBtLed[6].led = true;
+    gbBtLed[7].led = false;
+  }
+  else{
+    gbBtLed[6].led = false;
+    gbBtLed[7].led = true;
+  }
+  #else
   if(gbCrossing[0].status == CROSSING_STATUS_ON){
     gbBtLed[2].led = true;
   }
@@ -459,32 +473,55 @@ void updateButtonLedStatus(void){
   else{
     gbBtLed[3].led = false;
   }
+  #endif
 }
 
+
 void updateParamsFromLcdButton(void){
+  #ifdef USE_8_BUTTONS
   // Point 1
-  // if(gbBtLed[0].status==true && gbBtLed[1].status==false){
-  //   gbPoint[0].direction = POINT_DIRECTION_LEFT;
-  //   // change signal
-  //   gbSignal[0].status = SIGNAL_STATUS_STOP;
-  // }
-  // if(gbBtLed[0].status==false && gbBtLed[1].status==true){
-  //   gbPoint[0].direction = POINT_DIRECTION_RIGHT;
-  //   // change signal
-  //   gbSignal[0].status = SIGNAL_STATUS_GO;
-  // }  
-  // // Point 2
-  // if(gbBtLed[2].status==true && gbBtLed[3].status==false){
-  //   gbPoint[1].direction = POINT_DIRECTION_LEFT;
-  //   // change signal
-  //   gbSignal[1].status = SIGNAL_STATUS_GO;
-  // }
-  // if(gbBtLed[2].status==false && gbBtLed[3].status==true){
-  //   gbPoint[1].direction = POINT_DIRECTION_RIGHT;
-  //   // change signal
-  //   gbSignal[1].status = SIGNAL_STATUS_STOP;
-  // }  
-  
+  if(gbBtLed[0].status==true && gbBtLed[1].status==false){
+    gbPoint[0].direction = POINT_DIRECTION_LEFT;
+    // change signal
+    gbSignal[0].status = SIGNAL_STATUS_STOP;
+  }
+  if(gbBtLed[0].status==false && gbBtLed[1].status==true){
+    gbPoint[0].direction = POINT_DIRECTION_RIGHT;
+    // change signal
+    gbSignal[0].status = SIGNAL_STATUS_GO;
+  }
+  // if button status changed, redraw TFT
+  if(gbBtLed[0].status==true && gbBtLed[0].prevBt==false){
+    flagDrawTFT = true;
+  }
+  gbBtLed[0].prevBt = gbBtLed[0].status;
+  if(gbBtLed[1].status==true && gbBtLed[1].prevBt==false){
+    flagDrawTFT = true;
+  }  
+  gbBtLed[1].prevBt = gbBtLed[1].status;
+
+  // Point 2
+  if(gbBtLed[2].status==true && gbBtLed[3].status==false){
+    gbPoint[1].direction = POINT_DIRECTION_LEFT;
+    // change signal
+    gbSignal[1].status = SIGNAL_STATUS_GO;
+  }
+  if(gbBtLed[2].status==false && gbBtLed[3].status==true){
+    gbPoint[1].direction = POINT_DIRECTION_RIGHT;
+    // change signal
+    gbSignal[1].status = SIGNAL_STATUS_STOP;
+  }
+  // if button status changed, redraw TFT
+  if(gbBtLed[2].status==true && gbBtLed[2].prevBt==false){
+    flagDrawTFT = true;
+  }
+  gbBtLed[2].prevBt = gbBtLed[2].status;
+  if(gbBtLed[3].status==true && gbBtLed[3].prevBt==false){
+    flagDrawTFT = true;
+  }  
+  gbBtLed[3].prevBt = gbBtLed[3].status;
+
+  #else
   // PT1
   if(gbBtLed[0].status==true && gbBtLed[0].prevBt==false){
     if(gbPoint[0].direction == POINT_DIRECTION_LEFT){
@@ -495,6 +532,7 @@ void updateParamsFromLcdButton(void){
       gbPoint[0].direction = POINT_DIRECTION_LEFT;
       gbSignal[0].status = SIGNAL_STATUS_STOP;      
     }
+    flagDrawTFT = true;
   }
   gbBtLed[0].prevBt = gbBtLed[0].status;
 
@@ -507,27 +545,51 @@ void updateParamsFromLcdButton(void){
       gbPoint[1].direction = POINT_DIRECTION_LEFT;
       gbSignal[1].status = SIGNAL_STATUS_GO;      
     }
+    flagDrawTFT = true;
   }
   gbBtLed[1].prevBt = gbBtLed[1].status;
+  #endif
 
-  // // crossing
-  // if(gbBtLed[4].status==true && gbBtLed[5].status==false){
-  //   gbCrossing[0].status = CROSSING_STATUS_OFF;
-  // }
-  // if(gbBtLed[4].status==false && gbBtLed[5].status==true){
-  //   gbCrossing[0].status = CROSSING_STATUS_ON;
-  // }  
-  // // train direction
-  // if(gbBtLed[6].status==true && gbBtLed[7].status==false){
-  //   gbTrain.direction = TRAIN_DIRECTION_CLOCKWISE;
-  //   // change signal
-  //   gbSignal[2].status = SIGNAL_STATUS_GO;
-  // }
-  // if(gbBtLed[6].status==false && gbBtLed[7].status==true){
-  //   gbTrain.direction = TRAIN_DIRECTION_COUNTERCLOCKWISE;
-  //   // change signal
-  //   gbSignal[2].status = SIGNAL_STATUS_STOP;
-  // }
+  #ifdef USE_8_BUTTONS
+  // crossing
+  if(gbBtLed[4].status==true && gbBtLed[5].status==false){
+    gbCrossing[0].status = CROSSING_STATUS_OFF;
+  }
+  if(gbBtLed[4].status==false && gbBtLed[5].status==true){
+    gbCrossing[0].status = CROSSING_STATUS_ON;
+  }  
+  // if button status changed, redraw TFT
+  if(gbBtLed[4].status==true && gbBtLed[4].prevBt==false){
+    flagDrawTFT = true;
+  }
+  gbBtLed[4].prevBt = gbBtLed[4].status;
+  if(gbBtLed[5].status==true && gbBtLed[5].prevBt==false){
+    flagDrawTFT = true;
+  }  
+  gbBtLed[5].prevBt = gbBtLed[5].status;
+
+  // train direction
+  if(gbBtLed[6].status==true && gbBtLed[7].status==false){
+    gbTrain.direction = TRAIN_DIRECTION_CLOCKWISE;
+    // change signal
+    gbSignal[2].status = SIGNAL_STATUS_GO;
+  }
+  if(gbBtLed[6].status==false && gbBtLed[7].status==true){
+    gbTrain.direction = TRAIN_DIRECTION_COUNTERCLOCKWISE;
+    // change signal
+    gbSignal[2].status = SIGNAL_STATUS_STOP;
+  }
+  // if button status changed, redraw TFT
+  if(gbBtLed[6].status==true && gbBtLed[6].prevBt==false){
+    flagDrawTFT = true;
+  }
+  gbBtLed[6].prevBt = gbBtLed[6].status;
+  if(gbBtLed[7].status==true && gbBtLed[7].prevBt==false){
+    flagDrawTFT = true;
+  }  
+  gbBtLed[7].prevBt = gbBtLed[7].status;
+
+  #else
   if(gbBtLed[2].status==true && gbBtLed[2].prevBt==false){
     if(gbCrossing[0].status == CROSSING_STATUS_OFF){
       gbCrossing[0].status = CROSSING_STATUS_ON;
@@ -535,6 +597,7 @@ void updateParamsFromLcdButton(void){
     else{
       gbCrossing[0].status = CROSSING_STATUS_OFF;
     }
+    flagDrawTFT = true;
   }
   gbBtLed[2].prevBt = gbBtLed[2].status;
 
@@ -547,9 +610,10 @@ void updateParamsFromLcdButton(void){
       gbTrain.direction = TRAIN_DIRECTION_CLOCKWISE;
       gbSignal[2].status = SIGNAL_STATUS_GO;
     }
+    flagDrawTFT = true;
   }
    gbBtLed[3].prevBt = gbBtLed[3].status;
-
+  #endif
   //
   updateButtonLedStatus();
 }

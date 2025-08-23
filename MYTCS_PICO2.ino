@@ -43,7 +43,7 @@ struct repeating_timer st_timer;
 // Flags
 
 int flagDrawTFT=0;
-int flagIsTouched=0;
+int flagCheckTouchPanel=0;
 int flagAlt800=0;
 int flagAlt500=0;
 int flagTESTAlt=0;
@@ -77,7 +77,7 @@ void initParams(void)
   gbSystem.mode = SYSTEM_MODE_MANUAL;
   gbSystem.scenario_counter = 0;
   gbSystem.wait_timer = 0;
-  gbSystem.scenario_number = 3;
+  gbSystem.scenario_number = 0;
   gbSystem.isEndless = 0;
   gbSystem.scenario_counter_max = 0;
   for(i=0;i<NUM_STREET_LIGHT;i++){
@@ -199,15 +199,15 @@ void setup() {
   ts.begin();
   ts.setRotation(3);
 
-  // TEST LED
+  // TEST LED on Board
   pinMode(LED_BUILTIN, OUTPUT);
 
   // init screen
   flagDrawTFT = true;
-  canvas.setCursor(0,0); // avoid initial position bug
+  canvas.setCursor(100,100); // avoid initial position bug
   canvas.setTextColor(ILI9341_WHITE);
   canvas.setFont(&FreeSans9pt7b);
-  canvas.print("Starting...");
+  canvas.print("STARTING UP...");
   tft.drawRGBBitmap(0, 0, canvas.getBuffer(), TFT_WIDTH, TFT_HEIGHT);
 
   // reset HC595
@@ -220,7 +220,7 @@ void setup() {
   add_repeating_timer_us(1000, My1msIntHandler, NULL, &st_timer);
 
   gbIsHC595Update = true;
-  flagIsTouched = true;
+  flagCheckTouchPanel = true;
   setTFTFromParams();
 }
 
@@ -251,12 +251,13 @@ void loop() {
   tPoint.x=0;
   tPoint.y=0;
 
-  if(flagIsTouched == true){
-    flagIsTouched = false;
+  if(flagCheckTouchPanel == true){
+    flagCheckTouchPanel = false;
+    // whether touched or not
     bTouch = ts.touched();    
     if (bTouch == true){
       tPoint = ts.getPoint();
-      flagDrawTFT = true;
+      //flagDrawTFT = true;
     }
     else {
       //タッチがなければタッチ無表示
@@ -266,12 +267,6 @@ void loop() {
     // ローカル座標を取得
     getPositionOnScreen( &tPoint, &screenPos);
   }
-
-  // touch 状態が変わったら画面更新
-  if(bTouch != bTouchPrev){
-    flagDrawTFT = true;
-  }
-  bTouchPrev = bTouch;
 
   // 信号変化判定
   for(int i=0; i>NUM_TFT_SIGNAL; i++){
@@ -296,6 +291,9 @@ void loop() {
   }
 
   // TFT UI から内部変数をセットする
+  for(int i=0; i<NUM_TFT_BUTTONS; i++){
+    isTFTButtonPressed( &tftButton[i], &screenPos);
+  }
   setParamFromTFTUI();
 
   // 描画フラグなら
@@ -335,14 +333,12 @@ void loop() {
    
     // UI buttons
     for(int i=0; i<NUM_TFT_BUTTONS; i++){
-      isTFTButtonPressed( &tftButton[i], &screenPos);
       drawTFTButton( &tftButton[i], &canvas);
     }
+    // the bitmap copy below takes long time 80ms
+    digitalWrite(LED_BUILTIN, HIGH); // LED on board
     tft.drawRGBBitmap(0, 0, canvas.getBuffer(), TFT_WIDTH, TFT_HEIGHT);
+    digitalWrite(LED_BUILTIN, LOW);
   }
-
-  // TEST LED
-  if(testLED){digitalWrite(LED_BUILTIN, HIGH);}
-  else {digitalWrite(LED_BUILTIN, LOW);}
 
 }

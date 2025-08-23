@@ -40,6 +40,10 @@ void setParamFromTFTUI( void ) {
       else{
         gbSignal[0].status = SIGNAL_STATUS_GO;
       }
+      flagDrawTFT = true;
+    }
+    if(tftButton[0].isPressedPrevious!=tftButton[0].isPressed){
+      flagDrawTFT = true;
     }
     tftButton[0].isPressedPrevious = tftButton[0].isPressed;
 
@@ -53,6 +57,10 @@ void setParamFromTFTUI( void ) {
       else{
         gbSignal[1].status = SIGNAL_STATUS_GO;
       }
+      flagDrawTFT = true;
+    }
+    if(tftButton[1].isPressedPrevious!=tftButton[1].isPressed){
+      flagDrawTFT = true;
     }
     tftButton[1].isPressedPrevious = tftButton[1].isPressed;
 
@@ -60,6 +68,9 @@ void setParamFromTFTUI( void ) {
     if(tftButton[2].isPressed == true && tftButton[2].isPressedPrevious == false){
       gbIsUiChanged=true;
       gbCrossing[0].status = 1 - gbCrossing[0].status;
+    }
+    if(tftButton[2].isPressedPrevious!=tftButton[2].isPressed){
+      flagDrawTFT = true;
     }
     tftButton[2].isPressedPrevious = tftButton[2].isPressed;
 
@@ -73,6 +84,10 @@ void setParamFromTFTUI( void ) {
       else{
         gbSignal[2].status = SIGNAL_STATUS_STOP;
       }
+      flagDrawTFT = true;
+    }
+    if(tftButton[3].isPressedPrevious!=tftButton[3].isPressed){
+      flagDrawTFT = true;
     }
     tftButton[3].isPressedPrevious = tftButton[3].isPressed;
     
@@ -81,6 +96,10 @@ void setParamFromTFTUI( void ) {
       gbIsUiChanged=true;
       gbSystem.mode = SYSTEM_MODE_MANUAL;
       gbSystem.scenario_counter = 0;
+      flagDrawTFT = true;
+    }
+    if(tftButton[4].isPressedPrevious!=tftButton[4].isPressed){
+      flagDrawTFT = true;
     }
     tftButton[4].isPressedPrevious = tftButton[4].isPressed;
 
@@ -89,6 +108,10 @@ void setParamFromTFTUI( void ) {
       gbIsUiChanged=true;
       gbSystem.mode = SYSTEM_MODE_AUTO;
       initScenarioParams();
+      flagDrawTFT = true;
+    }
+    if(tftButton[5].isPressedPrevious!=tftButton[5].isPressed){
+      flagDrawTFT = true;
     }
     tftButton[5].isPressedPrevious = tftButton[5].isPressed;
 
@@ -96,6 +119,10 @@ void setParamFromTFTUI( void ) {
     if(tftButton[6].isPressed == true && tftButton[6].isPressedPrevious == false){
       gbIsUiChanged=true;
       gbSystem.isEndless = 1 - gbSystem.isEndless;
+      flagDrawTFT = true;
+    }
+    if(tftButton[6].isPressedPrevious!=tftButton[6].isPressed){
+      flagDrawTFT = true;
     }
     tftButton[6].isPressedPrevious = tftButton[6].isPressed;
 
@@ -327,8 +354,8 @@ Type_TFTPoint tftPoint[NUM_TFT_POINT] = {
 };
 
 void drawTFTPoint( GFXcanvas16 *canvas ){
-    uint16_t enabledRailColor = ILI9341_GREEN;
-    uint16_t disabledRailColor = ILI9341_DARKGREY;
+    uint16_t enabledRailColor = ILI9341_RED;
+    uint16_t disabledRailColor = ILI9341_NIGHTGREY;
     int blink = false;
 
     // point 1

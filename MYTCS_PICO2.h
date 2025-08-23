@@ -397,6 +397,9 @@ extern void drawTFTDebugText( GFXcanvas16 *canvas, char *text );
 extern void drawTFTSpeed( GFXcanvas16 *canvas, int speed );
 extern void drawTFTDirection( GFXcanvas16 *canvas, int speed );
 extern void drawTFTOthers( GFXcanvas16 *canvas );
+extern void drawTFTPoint( GFXcanvas16 *canvas );
+extern void drawTFTCross( GFXcanvas16 *canvas );
+extern void drawTFTSignal( GFXcanvas16 *canvas );
 extern void setSensorTFTFromHC166(void);
 
 // global vals
@@ -406,7 +409,7 @@ extern Type_Scenario gbScenario_1[];
 extern Type_Scenario gbScenario_2[];
 
 extern int flagDrawTFT;
-extern int flagIsTouched;
+extern int flagCheckTouchPanel;
 extern int flagAlt800;
 extern int flagTESTAlt;
 extern int testLED;

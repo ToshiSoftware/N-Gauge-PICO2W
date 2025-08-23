@@ -34,22 +34,25 @@ bool My1msIntHandler(struct repeating_timer *t) {
 
   // Touch Screen
   if(gbIntCounter % 20 == 0) {
-    flagIsTouched = true;
+    flagCheckTouchPanel = true;
   }
 
   // Cross blink
   if(gbIntCounter % 800 == 0)
   {
     flagAlt800 = 1-flagAlt800;
-    flagDrawTFT = true;
+    // only when cross lamp is active, redraw TFT
+    if(tftCross[0].isActive == true){
+      flagDrawTFT = true;
+    }
   }
 
-  // Point blink
-  if(gbIntCounter % 500 == 0)
-  {
-    flagAlt500 = 1-flagAlt500;
-    flagDrawTFT = true;
-  }
+  // // Point blink
+  // if(gbIntCounter % 500 == 0)
+  // {
+  //   flagAlt500 = 1-flagAlt500;
+  //   flagDrawTFT = true;
+  // }
 
   return true;
 }
