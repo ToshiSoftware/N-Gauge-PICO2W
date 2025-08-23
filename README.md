@@ -10,7 +10,7 @@ See the file: https://github.com/ToshiSoftware/N-Gauge-PICO2W/blob/main/docs/Abo
 
 A video of the system in action can be found here (Japanese only):
 
-https://youtu.be/Lsk5eA7wmyE?si=qMjoLOf_GdZ_f2Dt
+https://youtu.be/Lsk5eA7wmyE
 
 You can see a diorama of the layout and the tram running here (Japanese only):
 
