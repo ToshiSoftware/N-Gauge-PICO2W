@@ -4,6 +4,14 @@ This folder contains information about the hardware required to run the software
 
 ## Contents
 
+### Software structure
+
+* software_structure.pdf
+
+### Layout structure
+
+* layout_structure_diagram.pdf
+
 ### Schematics of PCB
 
 * controller_schematic.pdf: Main board including microcontroller and TFT display
