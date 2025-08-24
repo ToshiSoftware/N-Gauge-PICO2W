@@ -20,17 +20,8 @@ bool My1msIntHandler(struct repeating_timer *t) {
   if(tmpAlt){digitalWrite(PIN_INTR_1ms, HIGH);}
   else{digitalWrite(PIN_INTR_1ms, LOW);}
 
-  // original system task
+  // called every
   PriorityTask();
-
-  if(gbIntCounter % 5){
-    UsualTask();
-  }
-
-  // new system task for PICO2
-  if(gbIntCounter % 500 == 0) {
-    testLED = 1 - testLED;
-  }
 
   // Touch Screen
   if(gbIntCounter % 20 == 0) {
@@ -57,34 +48,13 @@ bool My1msIntHandler(struct repeating_timer *t) {
   return true;
 }
 
-void UsualTask(void){
-  if(gbIsUiChanged==true){
-    // UI
-    updateParamsFromLcdButton(); // read gbBtLed[i].status and change Point/Crossing/Signal/ButtonLED status
-
-    // set power pack driver
-    updatePowerPack();
-
-    // RESET change flag
-    gbIsUiChanged = false;
-  }
-
-  // Serial out
-  if(gbIsHC595Update==true){
-    updateHC595();
-    // RESET change flag
-    gbIsHC595Update = false;
-    gbIsUiChanged=true;
-  }
-}
-
 void PriorityTask(void){
 
   // serial in
   MySerialInput();  // read HC166 and then put into gbHC166Data
   setSensorTFTFromHC166();
   // serial in handler
-  HandleLedButton(); // read gbHC166Data[1], and change gbBtLed[i].status: if changed, gbIsUiChanged = true;
+  HandleLedButton(); // read gbHC166Data[1], and change gbBtLed[i].status: if changed, gbIsHC595Update = true;
 
   // drive devices
   HandleSignal(); // read gbSignal[i].status, if changed goto signal sequence
@@ -103,7 +73,6 @@ void PriorityTask(void){
       if(gbIntCounter % (unsigned int)gbTrain.accelTime == 0){
         gbTrain.speed--;
         gbTrain.prevSpeed = gbTrain.speed;
-        gbIsUiChanged = true;
         gbIsHC595Update = true;
       }
     }
@@ -111,10 +80,22 @@ void PriorityTask(void){
       if(gbIntCounter % (unsigned int)gbTrain.accelTime == 0){
         gbTrain.speed++;
         gbTrain.prevSpeed = gbTrain.speed;
-        gbIsUiChanged = true;
         gbIsHC595Update = true;
       }
     }
     HandleAutoDriveScenario();
   }
+
+  // Serial out
+  if(gbIsHC595Update==true){
+    // UI
+    updateParamsFromLcdButton(); // read gbBtLed[i].status and change Point/Crossing/Signal/ButtonLED status
+    // set power pack driver
+    updatePowerPack();
+    // output serial to HC595
+    updateHC595();
+    // RESET change flag
+    gbIsHC595Update = false;
+  }
+
 }

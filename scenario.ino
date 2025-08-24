@@ -67,6 +67,7 @@ Type_Scenario gbScenario_0[] ={
     //WAIT_SENSOR(2)
     SPEED(SPEED_STOP)
     DIRECTION(TRAIN_DIRECTION_COUNTERCLOCKWISE)
+    CROSS(CROSSING_STATUS_OFF) 
     WAIT_TIME(1000)
 
     // ポイント位置初期化
@@ -444,7 +445,6 @@ void HandleAutoDriveScenario(void){
         gbPoint[0].direction = POINT_DIRECTION_RIGHT;
         gbSignal[0].status = SIGNAL_STATUS_GO;
       }
-      gbIsUiChanged = true;
       gbIsHC595Update = true;
       gbSystem.scenario_counter++;
       updateButtonLedStatus();
@@ -460,7 +460,6 @@ void HandleAutoDriveScenario(void){
         gbPoint[1].direction = POINT_DIRECTION_RIGHT;
         gbSignal[1].status = SIGNAL_STATUS_STOP;
       }
-      gbIsUiChanged = true;
       gbIsHC595Update = true;
       gbSystem.scenario_counter++;
       updateButtonLedStatus();
@@ -476,7 +475,6 @@ void HandleAutoDriveScenario(void){
         gbTrain.direction = TRAIN_DIRECTION_COUNTERCLOCKWISE;
         gbSignal[2].status = SIGNAL_STATUS_STOP;
       }
-      gbIsUiChanged = true;
       gbIsHC595Update = true;
       gbSystem.scenario_counter++;
       updateButtonLedStatus();
@@ -485,7 +483,6 @@ void HandleAutoDriveScenario(void){
     // train speed
     else if(gbScenario[gbSystem.scenario_counter].param_0 == SCN_NOTG_SPEED){
       gbTrain.targetSpeed = gbScenario[gbSystem.scenario_counter].param_1;
-      gbIsUiChanged = true;
       gbIsHC595Update = true;
       gbSystem.scenario_counter++;
       updateButtonLedStatus();
@@ -494,7 +491,6 @@ void HandleAutoDriveScenario(void){
     // speed acceleration
     else if(gbScenario[gbSystem.scenario_counter].param_0 == SCN_NOTG_ACCEL){
       gbTrain.accelTime = gbScenario[gbSystem.scenario_counter].param_1;
-      //gbIsUiChanged = true;
       //gbIsHC595Update = true;
       gbSystem.scenario_counter++;
       //updateButtonLedStatus();
@@ -502,7 +498,6 @@ void HandleAutoDriveScenario(void){
      }    // crossing
     else if(gbScenario[gbSystem.scenario_counter].param_0 == SCN_NOTG_CROSS){
       gbCrossing[0].status = gbScenario[gbSystem.scenario_counter].param_1;
-      gbIsUiChanged = true;
       gbIsHC595Update = true;
       gbSystem.scenario_counter++;
       updateButtonLedStatus();

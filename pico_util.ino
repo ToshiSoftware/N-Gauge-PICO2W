@@ -32,7 +32,7 @@ void setParamFromTFTUI( void ) {
   if( gbIntCounter > lastUITime + UI_BUTTON_DETECTION_INTARVAL){
     // Pnt 1
     if(tftButton[0].isPressed == true && tftButton[0].isPressedPrevious == false){
-      gbIsUiChanged=true;
+      gbIsHC595Update=true;
       gbPoint[0].direction = 1 - gbPoint[0].direction;
       if(gbPoint[0].direction == POINT_DIRECTION_LEFT){
         gbSignal[0].status = SIGNAL_STATUS_STOP;
@@ -49,7 +49,7 @@ void setParamFromTFTUI( void ) {
 
     // Pnt 2
     if(tftButton[1].isPressed == true && tftButton[1].isPressedPrevious == false){
-      gbIsUiChanged=true;
+      gbIsHC595Update=true;
       gbPoint[1].direction = 1 - gbPoint[1].direction;
       if(gbPoint[1].direction == POINT_DIRECTION_RIGHT){
         gbSignal[1].status = SIGNAL_STATUS_STOP;
@@ -66,7 +66,7 @@ void setParamFromTFTUI( void ) {
 
     // Cross
     if(tftButton[2].isPressed == true && tftButton[2].isPressedPrevious == false){
-      gbIsUiChanged=true;
+      gbIsHC595Update=true;
       gbCrossing[0].status = 1 - gbCrossing[0].status;
     }
     if(tftButton[2].isPressedPrevious!=tftButton[2].isPressed){
@@ -76,7 +76,7 @@ void setParamFromTFTUI( void ) {
 
     // Train Direction
     if(tftButton[3].isPressed == true && tftButton[3].isPressedPrevious == false){
-      gbIsUiChanged=true;
+      gbIsHC595Update=true;
       gbTrain.direction = 1 - gbTrain.direction;
       if(gbTrain.direction == TRAIN_DIRECTION_CLOCKWISE){
         gbSignal[2].status = SIGNAL_STATUS_GO;
@@ -93,7 +93,7 @@ void setParamFromTFTUI( void ) {
     
     // Mode:Manual
     if(tftButton[4].isPressed == true && tftButton[4].isPressedPrevious == false){
-      gbIsUiChanged=true;
+      gbIsHC595Update=true;
       gbSystem.mode = SYSTEM_MODE_MANUAL;
       gbSystem.scenario_counter = 0;
       flagDrawTFT = true;
@@ -105,7 +105,7 @@ void setParamFromTFTUI( void ) {
 
     // Mode:AUTO
     if(tftButton[5].isPressed == true && tftButton[5].isPressedPrevious == false){
-      gbIsUiChanged=true;
+      gbIsHC595Update=true;
       gbSystem.mode = SYSTEM_MODE_AUTO;
       initScenarioParams();
       flagDrawTFT = true;
@@ -117,7 +117,7 @@ void setParamFromTFTUI( void ) {
 
     // Mode:LoopRun
     if(tftButton[6].isPressed == true && tftButton[6].isPressedPrevious == false){
-      gbIsUiChanged=true;
+      gbIsHC595Update=true;
       gbSystem.isEndless = 1 - gbSystem.isEndless;
       flagDrawTFT = true;
     }

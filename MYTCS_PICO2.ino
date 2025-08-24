@@ -31,7 +31,6 @@ Type_Point      gbPoint[NUM_POINT];
 Type_Signal     gbSignal[NUM_SIGNAL];
 Type_Crossing   gbCrossing[NUM_CROSSING];
 Type_Sensor     gbSensor[NUM_SENSOR];
-int gbIsUiChanged = 0;
 int gbIsHC595Update = 0;
 
 unsigned int gbHC595Data[NUM_HC595];
@@ -47,7 +46,6 @@ int flagCheckTouchPanel=0;
 int flagAlt800=0;
 int flagAlt500=0;
 int flagTESTAlt=0;
-int testLED=0;
 
 // interrupt handler
 unsigned int gbIntCounter=0;
@@ -213,9 +211,6 @@ void setup() {
   // reset HC595
   updateHC595();
 
-  // reset HC595
-  updateHC595();
-
   /* タイマーの初期化(割込み間隔はusで指定) */
   add_repeating_timer_us(1000, My1msIntHandler, NULL, &st_timer);
 
@@ -241,7 +236,6 @@ void loop() {
   int i;
 
   if(gbIntCounter%250 == 0){
-    gbIsUiChanged = true;
     gbIsHC595Update = true;
   }
 

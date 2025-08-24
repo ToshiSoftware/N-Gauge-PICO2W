@@ -222,7 +222,6 @@ extern Type_Point      gbPoint[];
 extern Type_Signal     gbSignal[];
 extern Type_Crossing   gbCrossing[];
 extern Type_Sensor     gbSensor[];
-extern int gbIsUiChanged;
 extern int gbIsHC595Update;
 
 extern unsigned int gbHC595Data[];
@@ -412,7 +411,6 @@ extern int flagDrawTFT;
 extern int flagCheckTouchPanel;
 extern int flagAlt800;
 extern int flagTESTAlt;
-extern int testLED;
 extern int flagAlt500;
 
 

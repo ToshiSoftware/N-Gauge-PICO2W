@@ -134,7 +134,7 @@ void HandleLedButton(void) // called every 1ms
     maskBit = maskBit<<1;
     // is updated
     if(gbBtLed[i].prevStatus != gbBtLed[i].status ){
-      gbIsUiChanged = true;
+      gbIsHC595Update = true;
       gbBtLed[i].prevStatus = gbBtLed[i].status;
     }
   }
@@ -154,7 +154,6 @@ void GetSpeedVr( void )
 
   def = abs(gbTrain.tempSpeed - gbTrain.prevSpeed);
   if(def>=TRAIN_SPEED_TOLERANCE){
-    gbIsUiChanged = true;
     gbIsHC595Update = true;
     gbTrain.speed = gbTrain.tempSpeed;
     gbTrain.prevSpeed = gbTrain.speed;
@@ -186,14 +185,13 @@ void HandleSignal(void)
       {
         if(gbSignal[i].status == SIGNAL_STATUS_STOP ){
           gbSignal[i].color =  SIGNAL_COLOR_RED;
-          gbIsHC595Update = true;
           flagDrawTFT = true;
         }
         else{
           gbSignal[i].color =  SIGNAL_COLOR_GREEN;         
-          gbIsHC595Update = true;
           flagDrawTFT = true;
         }
+        gbIsHC595Update = true;
         gbSignal[i].isChanging = false;
       }
       // internal counter ++
