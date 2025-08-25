@@ -10,15 +10,16 @@
 // called every 1 msec
 int tmpAlt = 0;
 bool My1msIntHandler(struct repeating_timer *t) {
+  // Timing test
+  digitalWrite(PIN_TEST_1ms_INTRPT, HIGH);
   // counter
   gbIntCounter++;
   //if(gbIntCounter>TIMER_COUNTER_MAX) gbIntCounter=0; // 100sec timer
   
-  // test interrup interval
+  // 1ms real clock
   tmpAlt = 1-tmpAlt;
-
-  if(tmpAlt){digitalWrite(PIN_INTR_1ms, HIGH);}
-  else{digitalWrite(PIN_INTR_1ms, LOW);}
+  if(tmpAlt){digitalWrite(PIN_REALCLOCK_1ms, HIGH);}
+  else{digitalWrite(PIN_REALCLOCK_1ms, LOW);}
 
   // called every
   PriorityTask();
@@ -45,6 +46,8 @@ bool My1msIntHandler(struct repeating_timer *t) {
   //   flagDrawTFT = true;
   // }
 
+  // Timing test
+  digitalWrite(PIN_TEST_1ms_INTRPT, LOW);
   return true;
 }
 

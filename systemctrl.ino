@@ -48,6 +48,8 @@ void MySerialOutput( void )
   int chip;
   int i;
   unsigned int shifted_data=0;
+  // TEST
+  digitalWrite(PIN_TEST_HC595, HIGH);
 
   // initial
   digitalWrite(PIN_595_DAT, HIGH);
@@ -83,12 +85,17 @@ void MySerialOutput( void )
   digitalWrite(PIN_595_STB, HIGH);
   // termination
   digitalWrite(PIN_595_DAT, HIGH);
+  // TEST
+  digitalWrite(PIN_TEST_HC595, LOW);
 }
 
 
 void MySerialInput( void )
 {
   int i, chip;
+
+  // TEST
+  digitalWrite(PIN_TEST_HC166, HIGH);
 
   for(i=0; i<NUM_HC166; i++) gbHC166Data[i]=0;
 
@@ -116,6 +123,9 @@ void MySerialInput( void )
       digitalWrite(PIN_166_CLK, HIGH); 
     }
   }
+
+  // TEST
+  digitalWrite(PIN_TEST_HC166, LOW);
 }
 
 void HandleLedButton(void) // called every 1ms

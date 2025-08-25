@@ -155,7 +155,14 @@ void setup() {
   pinMode(PIN_595_DAT, OUTPUT);
   pinMode(PIN_595_CLK, OUTPUT);
   pinMode(PIN_595_STB, OUTPUT);
-  pinMode(PIN_INTR_1ms, OUTPUT);
+
+  // Timimg test pins
+  pinMode(PIN_REALCLOCK_1ms, OUTPUT);
+  pinMode(PIN_TEST_1ms_INTRPT, OUTPUT);
+  pinMode(PIN_TEST_TFT, OUTPUT);
+  pinMode(PIN_TEST_HC595, OUTPUT);
+  pinMode(PIN_TEST_HC166, OUTPUT);
+
 
   // reset HC595
   updateHC595();
@@ -330,8 +337,10 @@ void loop() {
       drawTFTButton( &tftButton[i], &canvas);
     }
     // the bitmap copy below takes long time 80ms
+    digitalWrite(PIN_TEST_TFT, HIGH); // LED on board
     digitalWrite(LED_BUILTIN, HIGH); // LED on board
     tft.drawRGBBitmap(0, 0, canvas.getBuffer(), TFT_WIDTH, TFT_HEIGHT);
+    digitalWrite(PIN_TEST_TFT, LOW);
     digitalWrite(LED_BUILTIN, LOW);
   }
 

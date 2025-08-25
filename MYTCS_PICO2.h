@@ -25,9 +25,16 @@
 #define PIN_595_DAT  8  // p11 SWT-SID
 #define PIN_595_STB  9  // p12 SWT-CS
 
-#define PIN_INTR_1ms 15  // p20 for test
 
 #define PIN_ANALOG_VR 26 // p31   26-28 available
+
+// Timing test (25 = LED_BUILTIN, onboard LED)
+#define PIN_REALCLOCK_1ms    10 // p14 
+#define PIN_TEST_1ms_INTRPT  11 // p15
+#define PIN_TEST_TFT         12 // p16
+#define PIN_TEST_HC595       13 // p17
+#define PIN_TEST_HC166       14 // p19
+
 
 // PWM
 // #define PWM_FREQ 20000  // 20kHz
