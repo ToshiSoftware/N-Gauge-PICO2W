@@ -8,7 +8,7 @@ See the file: https://github.com/ToshiSoftware/N-Gauge-PICO2W/blob/main/docs/Abo
 
 ## YouTube
 
-A video of the system in action can be found here (Japanese only):
+A video of the system in action can be found here (Japanese only, please use the automatic subtitle translation.):
 
 https://youtu.be/Lsk5eA7wmyE
 
