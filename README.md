@@ -12,6 +12,6 @@ A video of the system in action can be found here (Japanese only, please use the
 
 https://youtu.be/Lsk5eA7wmyE
 
-You can see a diorama of the layout and the tram running here (Japanese only):
+You can see a diorama of the layout and the tram running here (No audio description):
 
 https://youtu.be/IACruLuuN5w
