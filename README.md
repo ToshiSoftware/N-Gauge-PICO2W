@@ -1,6 +1,6 @@
 # N gauge model tram/train layout automatic operation system
 
-This project includes an N gauge model tram/train controller and an autonomous driving system using the Raspberry Pi Pico 2 W.
+This project includes an N gauge model tram/train controller and an autonomous driving system using Raspberry Pi Pico 2 W.
 
 ## Design data
 
