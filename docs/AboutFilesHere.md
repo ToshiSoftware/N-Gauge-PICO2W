@@ -6,21 +6,21 @@ This folder contains information about the software and hardware of this system.
 
 ### Software configuration
 
-* software_structure.pdf
+* [software_structure.pdf](https://github.com/ToshiSoftware/N-Gauge-PICO2W/blob/main/docs/software_structure.pdf)
 
 ### N gauge layout configuration
 
-* layout_structure_diagram.pdf
+* [layout_structure_diagram.pdf](https://github.com/ToshiSoftware/N-Gauge-PICO2W/blob/main/docs/layout_structure_diagram.pdf)
 
 ### Hardware configuration
 
-* pcb_structure.pdf
+* [pcb_structure.pdf](https://github.com/ToshiSoftware/N-Gauge-PICO2W/blob/main/docs/pcb_structure.pdf)
 
 ### PCB Schematics
 
-* controller_schematic.pdf: Main board with microcontroller and TFT display
-* actuator_schematic.pdf: Sub-board that drives items in an N gauge layout
-* connection_schematic.pdf: Explanation of connections to items in the layout
+* [controller_schematic.pdf](https://github.com/ToshiSoftware/N-Gauge-PICO2W/blob/main/docs/controller_schematic.pdf): Main board with microcontroller and TFT display
+* [actuator_schematic.pdf](https://github.com/ToshiSoftware/N-Gauge-PICO2W/blob/main/docs/actuator_schematic.pdf): Sub-board that drives items in an N gauge layout
+* [connection_schematic.pdf](https://github.com/ToshiSoftware/N-Gauge-PICO2W/blob/main/docs/connection_schematic.pdf): Explanation of connections to items in the layout
 
 ### PCB KiCAD design data
 
@@ -28,5 +28,5 @@ The ZIP file contains printed circuit board design data (schematics, two-layer p
 
 These data were designed using KiCAD version 8.08.
 
-* KICAD_CONTROLLER.zip: Main board
-* KICAD_ACTUATOR.zip: Sub board
+* [KICAD_CONTROLLER.zip](https://github.com/ToshiSoftware/N-Gauge-PICO2W/blob/main/docs/KICAD_CONTROLLER.zip): Main board
+* [KICAD_ACTUATOR.zip](https://github.com/ToshiSoftware/N-Gauge-PICO2W/blob/main/docs/KICAD_ACTUATOR.zip): Sub board
