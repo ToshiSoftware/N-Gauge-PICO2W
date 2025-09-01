@@ -14,4 +14,4 @@ A video of the system in action can be found here:
 
 You can see a diorama of the layout and the tram running here (No audio description):
 
-https://youtu.be/IACruLuuN5w
+[A3サイズの箱庭鉄道模型レイアウト 伊予鉄道 (風景編)](https://youtu.be/IACruLuuN5w)
