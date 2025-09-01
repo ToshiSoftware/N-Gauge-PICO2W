@@ -10,7 +10,7 @@ See the file: https://github.com/ToshiSoftware/N-Gauge-PICO2W/blob/main/docs/Abo
 
 A video of the system in action can be found here:
 
-[https://youtu.be/Lsk5eA7wmyE](https://youtu.be/R6ILkEr7j3k?si=v2wnCct7QF6oFGn6)
+[Autonomous N Gauge Model Tram/Train Layout in Action | Raspberry Pi Pico + Touchscreen Control](https://youtu.be/R6ILkEr7j3k?si=v2wnCct7QF6oFGn6)
 
 You can see a diorama of the layout and the tram running here (No audio description):
 
