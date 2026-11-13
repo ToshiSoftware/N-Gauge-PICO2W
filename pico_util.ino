@@ -25,6 +25,8 @@ void setTFTFromParams(void){
     for(int i=0; i<NUM_TFT_SENSOR; i++){
       tftSensor[i].isActive = gbSensor[i].status;
     }
+    // STRT / RET button label
+    ServiceUpdateButton();
 }
 
 // タッチパネルのボタンにより、内部パラメータをセットする
@@ -103,22 +105,23 @@ void setParamFromTFTUI( void ) {
     }
     tftButton[4].isPressedPrevious = tftButton[4].isPressed;
 
-    // Mode:AUTO
-    if(tftButton[5].isPressed == true && tftButton[5].isPressedPrevious == false){
-      gbIsHC595Update=true;
-      gbSystem.mode = SYSTEM_MODE_AUTO;
-      initScenarioParams();
+    // STRT / RET (SERVICE mode)  ※旧 AUTO（gbScenario_1 の自動運転）は無効化
+    if(tftButton[TFT_BUTTON_SERVICE].isPressed == true && tftButton[TFT_BUTTON_SERVICE].isPressedPrevious == false){
+      ServiceButtonPressed();
       flagDrawTFT = true;
     }
-    if(tftButton[5].isPressedPrevious!=tftButton[5].isPressed){
+    if(tftButton[TFT_BUTTON_SERVICE].isPressedPrevious!=tftButton[TFT_BUTTON_SERVICE].isPressed){
       flagDrawTFT = true;
     }
-    tftButton[5].isPressedPrevious = tftButton[5].isPressed;
+    tftButton[TFT_BUTTON_SERVICE].isPressedPrevious = tftButton[TFT_BUTTON_SERVICE].isPressed;
 
     // Mode:LoopRun
     if(tftButton[6].isPressed == true && tftButton[6].isPressedPrevious == false){
       gbIsHC595Update=true;
       gbSystem.isEndless = 1 - gbSystem.isEndless;
+      if(gbSystem.isEndless == true){
+        ServiceLoopTurnedOn(); // 出発回数カウンタをリセット
+      }
       flagDrawTFT = true;
     }
     if(tftButton[6].isPressedPrevious!=tftButton[6].isPressed){
@@ -193,7 +196,7 @@ Type_TFTButton tftButton[NUM_TFT_BUTTONS]=
   {220, 205, 60, 30, ILI9341_ORANGE, ILI9341_NIGHTORANGE, ILI9341_BLACK, 6, 21, "DIRC", 0, 0},
 
   {250, 20, 60, 30, ILI9341_WHITE, ILI9341_NIGHTGREY, ILI9341_BLACK, 9, 21, "MAN", 0, 0},
-  {250, 60, 60, 30, ILI9341_WHITE, ILI9341_NIGHTGREY, ILI9341_BLACK, 5, 21, "AUTO", 0, 0},
+  {250, 60, 60, 30, ILI9341_GREENYELLOW, ILI9341_NIGHTGREY, ILI9341_BLACK, 5, 21, "STRT", 0, 0}, // TFT_BUTTON_SERVICE (label set by ServiceUpdateButton)
   {250, 100, 60, 30, ILI9341_WHITE, ILI9341_NIGHTGREY, ILI9341_BLACK, 5, 21, "LOOP", 0, 0} //,
   //{250, 130, 60, 30, ILI9341_WHITE, ILI9341_RED, ILI9341_WHITE, "----", 0, 0}
 };
@@ -490,8 +493,8 @@ void drawTFTOthers( GFXcanvas16 *canvas ){
     canvas->setFont(&FreeSans9pt7b);
     sprintf(text, "( %03d )", gbSystem.scenario_counter);
     canvas->print(text);  
-    // Auto button lamp
-    if(gbSystem.mode == SYSTEM_MODE_AUTO){
+    // STRT/RET button lamp : 自動運転(SERVICE)中は 800ms 周期で点滅
+    if(gbSystem.mode == SYSTEM_MODE_SERVICE && flagAlt800 == 0){
         canvas->fillRect(241, 65, 6, 20, ILI9341_RED);
     }
     else{

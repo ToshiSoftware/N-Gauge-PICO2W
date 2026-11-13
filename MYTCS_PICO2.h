@@ -76,6 +76,7 @@
 #define NUM_SCENARIO_ID 10
 #define SYSTEM_MODE_MANUAL 0
 #define SYSTEM_MODE_AUTO   1
+#define SYSTEM_MODE_SERVICE 2  // STRT/RET によるループ運転
 #define NUM_STREET_LIGHT  5
 typedef struct _Type_System
 {
@@ -118,6 +119,48 @@ SCN_TRIGGER_MSEC    wait_msec      N/A
 #define SCN_NOTG_SPEED 3
 #define SCN_NOTG_CROSS 4
 #define SCN_NOTG_ACCEL 5
+
+// speed presets (scenario / service)
+#define SPEED_STOP 0
+#define SPEED_THRESHOLD 20
+#define SPEED_LOW 60
+#define SPEED_MID 70
+#define SPEED_HIGH 90
+#define SPEED_MID_STOP 0
+
+// Scenario macros
+#define INVALID_DATA()    {SCN_TRIGGER_INVALID,0,0},
+#define WAIT_TIME(time)    {SCN_TRIGGER_MSEC, time, 0},
+#define WAIT_SENSOR(no)    {SCN_TRIGGER_SENSOR, no, 0},
+#define POINT_1(dir)       {SCN_TRIGGER_NO, SCN_NOTG_P1, dir},
+#define POINT_2(dir)       {SCN_TRIGGER_NO, SCN_NOTG_P2, dir},
+#define CROSS(onoff)       {SCN_TRIGGER_NO, SCN_NOTG_CROSS, onoff},
+#define SPEED(spd)         {SCN_TRIGGER_NO, SCN_NOTG_SPEED, spd},
+#define DIRECTION(drctn)   {SCN_TRIGGER_NO, SCN_NOTG_TR_DIR, drctn},
+#define ACCEL(ms)          {SCN_TRIGGER_NO, SCN_NOTG_ACCEL, ms},
+
+// SERVICE mode (STRT/RET loop operation): see service.ino
+#define SVC_STATE_IDLE      0  // 停止状態（STRT 待ち）
+#define SVC_STATE_RUNNING   1  // 周回中（RET 待ち）
+#define SVC_STATE_RETURNING 2  // RET 受付済み、ホームへ帰還中
+
+typedef struct _Type_Service
+{
+  int state;    // SVC_STATE_*
+  int track;    // 出発/帰着する番線 1 or 2
+  int segment;  // 実行中のセグメント SVC_SEG_*
+  int lapCount;    // 周回数（最初のセンサ7 通過 = 1）
+  int departCount; // LOOP ON 中の出発回数
+} Type_Service;
+
+extern Type_Service gbService;
+extern volatile int gbSvcStartRequest; // loop() -> ISR : STRT 押下（値=番線 1/2）
+extern volatile int gbSvcRetRequest;   // loop() -> ISR : RET 押下
+extern void ServiceHandleRequests(void);
+extern void ServiceNextSegment(void);
+extern void ServiceUpdateButton(void);
+extern void ServiceButtonPressed(void);
+extern void ServiceLoopTurnedOn(void);
 
 // MY ATCS control funcions
 #define BITMASK_1 0x00000001
@@ -375,6 +418,7 @@ typedef struct _Type_TFTPoint{
 }Type_TFTPoint;
 
 #define NUM_TFT_BUTTONS 7
+#define TFT_BUTTON_SERVICE 5  // STRT / RET / B2ST ボタン（旧 AUTO ボタンの位置）
 #define UI_BUTTON_DETECTION_INTARVAL 50 // ms
 extern Type_TFTButton tftButton[];
 

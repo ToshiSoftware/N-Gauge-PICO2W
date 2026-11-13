@@ -33,8 +33,8 @@ bool My1msIntHandler(struct repeating_timer *t) {
   if(gbIntCounter % 800 == 0)
   {
     flagAlt800 = 1-flagAlt800;
-    // only when cross lamp is active, redraw TFT
-    if(tftCross[0].isActive == true){
+    // only when cross lamp is active (or SERVICE lamp is blinking), redraw TFT
+    if(tftCross[0].isActive == true || gbSystem.mode == SYSTEM_MODE_SERVICE){
       flagDrawTFT = true;
     }
   }
@@ -64,6 +64,9 @@ void PriorityTask(void){
   DrivePoint(); // read gbPoint[i].direction, if changed drive Point
   DriveCrossing(); // read gbCrossing[i].status, if changed drive Crossing
   
+  // SERVICE mode (STRT/RET) requests from loop()
+  ServiceHandleRequests();
+
   // VR
   if(gbSystem.mode == SYSTEM_MODE_MANUAL){
     GetSpeedVr();  // read Analog pin, and then set gbTrain.speed

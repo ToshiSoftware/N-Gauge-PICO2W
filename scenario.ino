@@ -37,27 +37,8 @@ CROSS     off CROSSING_STATUS_OFF
 
 //#define _DEBUG 1
 
-#define SPEED_STOP 0
-#define SPEED_THRESHOLD 20
-#define SPEED_LOW 50
-#define SPEED_MID 70
-#define SPEED_HIGH 90
-#define SPEED_MID_STOP 0
-
-// Scenario macros
-#define INVALID_DATA()    {SCN_TRIGGER_INVALID,0,0},
-#define WAIT_TIME(time)    {SCN_TRIGGER_MSEC, time, 0},
-//#ifdef _DEBUG
-//  #define WAIT_SENSOR(no)    {SCN_TRIGGER_MSEC, 2000, 0},
-//#else
-  #define WAIT_SENSOR(no)    {SCN_TRIGGER_SENSOR, no, 0},
-//#endif
-#define POINT_1(dir)       {SCN_TRIGGER_NO, SCN_NOTG_P1, dir},
-#define POINT_2(dir)       {SCN_TRIGGER_NO, SCN_NOTG_P2, dir},
-#define CROSS(onoff)       {SCN_TRIGGER_NO, SCN_NOTG_CROSS, onoff},
-#define SPEED(spd)         {SCN_TRIGGER_NO, SCN_NOTG_SPEED, spd},
-#define DIRECTION(drctn)   {SCN_TRIGGER_NO, SCN_NOTG_TR_DIR, drctn},
-#define ACCEL(ms)          {SCN_TRIGGER_NO, SCN_NOTG_ACCEL, ms},
+// SPEED_* 定数とシナリオ記述マクロ (WAIT_TIME, WAIT_SENSOR, ...) は
+// service.ino と共用するため MYTCS_PICO2.h に移動
 
 //#define NUM_SCENARIO_COUNTER (sizeof(gbScenario) / sizeof(Type_Scenario))
 
@@ -611,6 +592,11 @@ void HandleAutoDriveScenario(void){
   // auto drive
   //int numScenarioCounter = (sizeof(gbScenario) / sizeof(Type_Scenario));
   if(gbSystem.scenario_counter>=gbSystem.scenario_counter_max){
+    // SERVICE モード：次のセグメントを選択（service.ino）
+    if(gbSystem.mode == SYSTEM_MODE_SERVICE){
+      ServiceNextSegment();
+      return;
+    }
     if(gbSystem.isEndless==true){
       gbSystem.scenario_counter=0;
     }
