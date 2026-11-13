@@ -1,5 +1,6 @@
 {
     "files.associations": {
+        "*.ino": "cpp",
         "xlocale": "cpp",
         "ostream": "cpp",
         "print": "cpp",
