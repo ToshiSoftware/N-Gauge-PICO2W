@@ -1,0 +1,8 @@
+{
+    "files.associations": {
+        "xlocale": "cpp",
+        "ostream": "cpp",
+        "print": "cpp",
+        "cstdio": "cpp"
+    }
+}

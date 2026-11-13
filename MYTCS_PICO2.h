@@ -229,11 +229,11 @@ extern Type_Point      gbPoint[];
 extern Type_Signal     gbSignal[];
 extern Type_Crossing   gbCrossing[];
 extern Type_Sensor     gbSensor[];
-extern int gbIsHC595Update;
+extern volatile int gbIsHC595Update;
 
 extern unsigned int gbHC595Data[];
 extern unsigned int gbHC166Data[];
-extern unsigned int gbIntCounter;
+extern volatile unsigned int gbIntCounter;
 extern unsigned int lastUITime;
 
 // interrupt
@@ -414,11 +414,11 @@ extern Type_Scenario gbScenario_0[];
 extern Type_Scenario gbScenario_1[];
 extern Type_Scenario gbScenario_2[];
 
-extern int flagDrawTFT;
-extern int flagCheckTouchPanel;
-extern int flagAlt800;
-extern int flagTESTAlt;
-extern int flagAlt500;
+extern volatile int flagDrawTFT;
+extern volatile int flagCheckTouchPanel;
+extern volatile int flagAlt800;
+extern volatile int flagTESTAlt;
+extern volatile int flagAlt500;
 
 
 // global funcs

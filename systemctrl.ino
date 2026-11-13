@@ -29,15 +29,17 @@
 
 
 // Power pack control using PWM
+// wrap=255 なので level=256 で duty 100%(常時H = STOP)。
+// 駆動側は 256-speed (speed 0:常時H/停止 〜 255:ほぼL/最高速)、反対側は常時H。
+#define PWM_LEVEL_FULL_H 256
 void updatePowerPack(void){
     if(gbTrain.direction==TRAIN_DIRECTION_CLOCKWISE){
-      pwm_set_chan_level(slice_num, PWM_CHAN_A, 256-gbTrain.speed); // STOP = H (duty:100%)
-      pwm_set_chan_level(slice_num, PWM_CHAN_B, 255);
-
+      pwm_set_chan_level(slice_num, PWM_CHAN_A, PWM_LEVEL_FULL_H - gbTrain.speed);
+      pwm_set_chan_level(slice_num, PWM_CHAN_B, PWM_LEVEL_FULL_H);
     }
     else{
-      pwm_set_chan_level(slice_num, PWM_CHAN_A, 255); // STOP = H (duty:100%)
-      pwm_set_chan_level(slice_num, PWM_CHAN_B, 255-gbTrain.speed);
+      pwm_set_chan_level(slice_num, PWM_CHAN_A, PWM_LEVEL_FULL_H);
+      pwm_set_chan_level(slice_num, PWM_CHAN_B, PWM_LEVEL_FULL_H - gbTrain.speed);
     }
 }
 

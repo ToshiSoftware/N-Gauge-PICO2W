@@ -11,6 +11,9 @@
 #include <Adafruit_GFX.h>      // Adafruitのグラフィックスライブラリ
 #include <Adafruit_ILI9341.h>  // 液晶表示器 ILI9341 制御用ライブラリ
 
+#include <WiFi.h>
+#include <WebServer.h>
+
 #include <Fonts/FreeSans18pt7b.h> // フォントを読み込み
 #include <Fonts/FreeSans12pt7b.h>
 #include <Fonts/FreeSans9pt7b.h>
@@ -22,6 +25,20 @@
 
 #include "MYTCS_PICO2.h"
 
+// WIFI
+// 実際の SSID/パスワードは wifi_secrets.h に記述（git 管理外: .gitignore 参照）
+// ファイルが無い環境では下記の仮の値でコンパイルされる
+#if __has_include("wifi_secrets.h")
+  #include "wifi_secrets.h"
+#else
+  #define WIFI_SSID     "your-ssid"
+  #define WIFI_PASSWORD "your-password"
+#endif
+const char* ssid = WIFI_SSID;
+const char* password = WIFI_PASSWORD;
+
+WebServer server(80);  // HTTPサーバーをポート80で起動
+
 // global params
 Type_System     gbSystem;
 Type_Scenario   *gbScenario;
@@ -31,7 +48,9 @@ Type_Point      gbPoint[NUM_POINT];
 Type_Signal     gbSignal[NUM_SIGNAL];
 Type_Crossing   gbCrossing[NUM_CROSSING];
 Type_Sensor     gbSensor[NUM_SENSOR];
-int gbIsHC595Update = 0;
+volatile int gbIsHC595Update = 0;
+
+int flagEnableWifi=0;
 
 unsigned int gbHC595Data[NUM_HC595];
 unsigned int gbHC166Data[NUM_HC166];
@@ -41,14 +60,15 @@ struct repeating_timer st_timer;
 
 // Flags
 
-int flagDrawTFT=0;
-int flagCheckTouchPanel=0;
-int flagAlt800=0;
-int flagAlt500=0;
-int flagTESTAlt=0;
+// 割込み(1ms)と loop() の両方から参照するため volatile
+volatile int flagDrawTFT=0;
+volatile int flagCheckTouchPanel=0;
+volatile int flagAlt800=0;
+volatile int flagAlt500=0;
+volatile int flagTESTAlt=0;
 
 // interrupt handler
-unsigned int gbIntCounter=0;
+volatile unsigned int gbIntCounter=0;
 
 // ILI9341ディスプレイのインスタンスを作成
 Adafruit_ILI9341 tft = Adafruit_ILI9341(&SPI, TFT_DC, TFT_CS, TFT_RST);
@@ -75,7 +95,7 @@ void initParams(void)
   gbSystem.mode = SYSTEM_MODE_MANUAL;
   gbSystem.scenario_counter = 0;
   gbSystem.wait_timer = 0;
-  gbSystem.scenario_number = 0;
+  gbSystem.scenario_number = 1;
   gbSystem.isEndless = 0;
   gbSystem.scenario_counter_max = 0;
   for(i=0;i<NUM_STREET_LIGHT;i++){
@@ -83,10 +103,10 @@ void initParams(void)
   }
 
   // scenario pointer
-  gbScenario = gbScenario_0;
+  gbScenario = gbScenario_0; // Stop state speed = 20
 
   // init train status
-  gbTrain.direction = TRAIN_DIRECTION_CLOCKWISE;
+  gbTrain.direction = TRAIN_DIRECTION_COUNTERCLOCKWISE;
   gbTrain.prevDirection = TRAIN_DIRECTION_CLOCKWISE;
   gbTrain.speed = 0;
   gbTrain.prevSpeed = 0;
@@ -130,13 +150,59 @@ void initParams(void)
     gbCrossing[i].status=CROSSING_STATUS_OFF;
     gbCrossing[i].prevStatus=CROSSING_STATUS_OFF;
     gbCrossing[i].led1 = false;
-    gbCrossing[i].led1 = false;
+    gbCrossing[i].led2 = false;
     gbCrossing[i].counter = 0;
   }
   // init sensor
   for(i=0;i<NUM_SENSOR;i++){
     gbSensor[i].status=0;
   } 
+}
+
+IPAddress myIPV4;
+char myIPV4Str[32];
+char htmlBody[65536]="";
+char tempStr[128];
+
+// WIFI
+void handleRoot() {
+  strcpy(htmlBody, "<h1>MYTCS_PICO2W</h1>\n");
+  sprintf(tempStr, "<p>speed=%d<p>\n", gbTrain.speed);
+  strcat(htmlBody,tempStr);
+  server.send(200, "text/html", htmlBody);
+}
+
+int WIFI_setup(){
+  int timeoutCount=0;
+
+  //Serial.begin(115200);
+  //delay(1000);
+
+  // Wi-Fi接続
+  WiFi.begin(ssid, password);
+
+  //Serial.print("Connecting to WiFi");
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    //Serial.print(".");
+    timeoutCount++;
+    if(timeoutCount>8) return 0;
+    canvas.print("#");
+    tft.drawRGBBitmap(0, 0, canvas.getBuffer(), TFT_WIDTH, TFT_HEIGHT);
+  }
+  //Serial.println("\nConnected! IP address: ");
+  myIPV4  = WiFi.localIP();
+  snprintf(myIPV4Str, sizeof(myIPV4Str), "IP=%u.%u.%u.%u", myIPV4[0], myIPV4[1], myIPV4[2], myIPV4[3]);
+  //Serial.println(myIPV4);
+
+  // ルートハンドラ設定
+  server.on("/", handleRoot);
+
+  // サーバー開始
+  server.begin();
+  //Serial.println("HTTP server started");
+
+  return 1;
 }
 
 // PWM slice num
@@ -162,7 +228,6 @@ void setup() {
   pinMode(PIN_TEST_TFT, OUTPUT);
   pinMode(PIN_TEST_HC595, OUTPUT);
   pinMode(PIN_TEST_HC166, OUTPUT);
-
 
   // reset HC595
   updateHC595();
@@ -209,11 +274,10 @@ void setup() {
 
   // init screen
   flagDrawTFT = true;
-  canvas.setCursor(100,100); // avoid initial position bug
+  canvas.setCursor(50,100); // avoid initial position bug
   canvas.setTextColor(ILI9341_WHITE);
   canvas.setFont(&FreeSans9pt7b);
   canvas.print("STARTING UP...");
-  tft.drawRGBBitmap(0, 0, canvas.getBuffer(), TFT_WIDTH, TFT_HEIGHT);
 
   // reset HC595
   updateHC595();
@@ -224,6 +288,19 @@ void setup() {
   gbIsHC595Update = true;
   flagCheckTouchPanel = true;
   setTFTFromParams();
+
+  if(flagEnableWifi == true){
+    // WIFI
+    canvas.setCursor(50,140); // avoid initial position bug
+    canvas.print("CONNECTING WIFI...");
+    tft.drawRGBBitmap(0, 0, canvas.getBuffer(), TFT_WIDTH, TFT_HEIGHT);
+
+    if(WIFI_setup()==0){
+      sprintf(myIPV4Str, "no connection");
+    }
+  }
+  // for debug
+  strcpy(myIPV4Str, "Speed test 20");
 }
 
 int ct =0;
@@ -241,6 +318,11 @@ char debugText[256] = "";
 
 void loop() {
   int i;
+
+  if(flagEnableWifi == true){
+    // WIFI
+    server.handleClient();  // クライアント処理
+  }
 
   if(gbIntCounter%250 == 0){
     gbIsHC595Update = true;
@@ -270,7 +352,7 @@ void loop() {
   }
 
   // 信号変化判定
-  for(int i=0; i>NUM_TFT_SIGNAL; i++){
+  for(int i=0; i<NUM_TFT_SIGNAL; i++){
     if(tftSignal[i].colorPrevious != tftSignal[i].color){
       flagDrawTFT = true;
     }
@@ -284,7 +366,7 @@ void loop() {
   speedPrevious = gbTrain.speed;
 
   // ポイント変化判定
-  for(int i=0; i>NUM_TFT_POINT; i++){
+  for(int i=0; i<NUM_TFT_POINT; i++){
     if(tftPoint[i].directionPrevious != tftPoint[i].direction){
       flagDrawTFT = true;
     }
@@ -331,6 +413,8 @@ void loop() {
     // uint16_t colorTrack = getILI9341Color(63, 64, 63);
     // sprintf(debugText, "%04x", colorTrack);
     // drawTFTDebugText(&canvas, debugText);
+
+    drawTFTDebugText(&canvas, myIPV4Str);
    
     // UI buttons
     for(int i=0; i<NUM_TFT_BUTTONS; i++){

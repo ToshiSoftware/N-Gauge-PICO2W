@@ -1,0 +1,39 @@
+{
+    "env": {
+        /* windows 
+        "ARDUINO_PACKAGES_PATH": "C:/Users/tokada/AppData/Local/Arduino15/packages/arduino",
+        "ARDUINO_USER_PATH": "D:/OneDriveTokada/OneDrive/tokada/10.Arduino/Arduino",
+        "ARDUINO_COMPILER_PATH": "C:/Program Files (x86)/Microsoft Visual Studio/2017/Community/VC/Tools/MSVC/14.16.27023/bin/Hostx64/x64/cl.exe"
+        */
+        /* mac */
+        "ARDUINO_PACKAGES_PATH": "/Users/toshiokada/Library/Arduino15/packages/arduino",
+        "ARDUINO_USER_PATH": "/Users/toshiokada/Library/CloudStorage/OneDrive-個人用/tokada/10.Arduino/Arduino",
+        "ARDUINO_COMPILER_PATH": ""
+      },
+
+      "configurations": [{
+        "name": "Win32",
+        "includePath": [
+          "${workspaceFolder}",
+          "${env:ARDUINO_USER_PATH}/libraries/Adafruit_GFX_Library",
+          "${env:ARDUINO_USER_PATH}/libraries/Adafruit_ILI9341",
+          "${env:ARDUINO_USER_PATH}/libraries/XPT2046_Touchscreen"
+        ],
+        "browse": {
+          "path": [
+            "${workspaceFolder}",
+            "${env:ARDUINO_PACKAGES_PATH}/tools",
+            "${env:ARDUINO_PACKAGES_PATH}/hardware",
+            "${env:ARDUINO_USER_PATH}/libraries"
+          ]
+        },
+        /*"forcedInclude": [
+          "C:\\Program Files (x86)\\Arduino\\hardware\\arduino\\avr\\cores\\arduino\\Arduino.h"
+        ],*/
+        "intelliSenseMode": "msvc-x64",
+        "compilerPath": "${env:ARDUINO_COMPILER_PATH}",
+        "cStandard": "c11",
+        "cppStandard": "c++17"
+      }],
+    "version": 4
+}

@@ -38,9 +38,11 @@ CROSS     off CROSSING_STATUS_OFF
 //#define _DEBUG 1
 
 #define SPEED_STOP 0
+#define SPEED_THRESHOLD 20
 #define SPEED_LOW 50
 #define SPEED_MID 70
 #define SPEED_HIGH 90
+#define SPEED_MID_STOP 0
 
 // Scenario macros
 #define INVALID_DATA()    {SCN_TRIGGER_INVALID,0,0},
@@ -61,6 +63,240 @@ CROSS     off CROSSING_STATUS_OFF
 
 // scenario data
 
+
+// Modified the speed for the stop state
+Type_Scenario gbScenario_1[] ={
+    // 初期化
+    WAIT_TIME(1000)
+    //WAIT_SENSOR(2)
+    SPEED(SPEED_STOP)
+    DIRECTION(TRAIN_DIRECTION_COUNTERCLOCKWISE)
+    CROSS(CROSSING_STATUS_OFF) 
+    WAIT_TIME(1000)
+
+    // ポイント位置初期化
+    POINT_1(POINT_DIRECTION_LEFT)
+    WAIT_TIME(2000)
+    POINT_1(POINT_DIRECTION_RIGHT)
+
+    POINT_2(POINT_DIRECTION_LEFT)
+    WAIT_TIME(2000)
+    POINT_2(POINT_DIRECTION_RIGHT)
+
+    // 発車する
+    WAIT_TIME(3000)
+    ACCEL(100)
+    SPEED(SPEED_MID)
+
+    // ウォーミングアップで2周する
+    WAIT_SENSOR(8)
+    CROSS(CROSSING_STATUS_ON)    
+    WAIT_SENSOR(7)
+    CROSS(CROSSING_STATUS_OFF)   
+    POINT_1(POINT_DIRECTION_LEFT)
+    ACCEL(200)
+    SPEED(SPEED_HIGH)
+    WAIT_SENSOR(4)
+    ACCEL(100)
+    SPEED(SPEED_MID)
+
+    WAIT_SENSOR(8) // To avoid the same sensor 4 reacting
+    WAIT_SENSOR(4)
+    ACCEL(200)
+    SPEED(SPEED_HIGH)
+    WAIT_SENSOR(8)
+    WAIT_SENSOR(4)
+    ACCEL(100)
+    SPEED(SPEED_MID)
+
+    // 8を通過したら踏切ON
+    WAIT_SENSOR(8)
+    ACCEL(50)
+    SPEED(SPEED_LOW)
+    CROSS(CROSSING_STATUS_ON)
+
+    // 5を通過
+    WAIT_SENSOR(5)
+    WAIT_TIME(1400)
+    ACCEL(20)
+    SPEED(SPEED_MID_STOP)
+
+    // 5秒停車　ポイント１を周回へ
+    WAIT_TIME(3000)
+    POINT_1(POINT_DIRECTION_LEFT)
+    WAIT_TIME(2000)
+
+    // 方向を変えて変えて奥の駅を出発
+    DIRECTION(TRAIN_DIRECTION_CLOCKWISE)
+    ACCEL(200)  
+    SPEED(SPEED_MID)
+
+    // 8を通過したら踏切OFF
+    WAIT_SENSOR(8)
+    CROSS(CROSSING_STATUS_OFF)
+
+    // 4を通過したら手前の駅で停車
+    WAIT_SENSOR(4)
+    WAIT_TIME(100)
+    ACCEL(20)  
+    SPEED(SPEED_MID_STOP)
+
+    // 手前の駅を出発
+    WAIT_TIME(5000)
+    ACCEL(200)  
+    SPEED(SPEED_MID)
+
+    // 6を通過したら停車　踏切ON
+    WAIT_SENSOR(6)
+    //WAIT_TIME(1000)
+    ACCEL(50)
+    SPEED(SPEED_LOW)
+    WAIT_SENSOR(7)   
+    WAIT_TIME(600)
+    ACCEL(20)
+    SPEED(SPEED_MID_STOP)
+    CROSS(CROSSING_STATUS_ON)
+    WAIT_TIME(5000)
+    
+    // ポイント１を切り替えて駅へ入る
+    POINT_1(POINT_DIRECTION_RIGHT)
+    ACCEL(200)      
+    SPEED(SPEED_MID)
+    // 8を通過
+    WAIT_SENSOR(8)
+    CROSS(CROSSING_STATUS_OFF)
+    // 3を通過
+    WAIT_SENSOR(3)
+    //WAIT_TIME(1000)
+    ACCEL(100)      
+    SPEED(SPEED_LOW)
+    WAIT_TIME(1000)
+    ACCEL(20)      
+    SPEED(40)
+    // 2を通過　２番線へ到着
+    WAIT_SENSOR(2)
+    //WAIT_TIME(500)
+    ACCEL(5)      
+    SPEED(SPEED_STOP)
+  
+    // ５秒停車
+    WAIT_TIME(5000)
+
+
+    // オレンジ車両へ変更　----------------------
+    // 初期化
+    WAIT_TIME(1000)
+    //WAIT_SENSOR(1)
+    SPEED(SPEED_STOP)
+    DIRECTION(TRAIN_DIRECTION_COUNTERCLOCKWISE)
+    WAIT_TIME(1500)
+    POINT_1(POINT_DIRECTION_RIGHT)
+    POINT_2(POINT_DIRECTION_LEFT)
+
+     // 発車する
+    WAIT_TIME(3000)
+    ACCEL(100)
+    SPEED(SPEED_MID)
+
+    // ウォーミングアップで2周する
+    WAIT_SENSOR(8)
+    CROSS(CROSSING_STATUS_ON)    
+    WAIT_SENSOR(7)
+    CROSS(CROSSING_STATUS_OFF)   
+    POINT_1(POINT_DIRECTION_LEFT)
+    ACCEL(200)
+    SPEED(SPEED_HIGH)
+    //
+    WAIT_SENSOR(4)
+    ACCEL(100)
+    SPEED(SPEED_MID)
+    WAIT_SENSOR(8) // To avoid the same sensor 4 reacting
+    WAIT_SENSOR(4)
+    ACCEL(200)
+    SPEED(SPEED_HIGH)
+    WAIT_SENSOR(8)
+    WAIT_SENSOR(4)
+    ACCEL(100)
+    SPEED(SPEED_MID)
+
+    // 8を通過したら踏切ON
+    WAIT_SENSOR(8)
+    ACCEL(50)
+    SPEED(SPEED_LOW)
+    CROSS(CROSSING_STATUS_ON)
+
+    // 5を通過
+    WAIT_SENSOR(5)
+    WAIT_TIME(1400)
+    ACCEL(20)
+    SPEED(SPEED_MID_STOP)
+
+    // 5秒停車　ポイント１を周回へ
+    WAIT_TIME(3000)
+    POINT_1(POINT_DIRECTION_LEFT)
+    WAIT_TIME(2000)
+
+    // 方向を変えて変えて奥の駅を出発
+    DIRECTION(TRAIN_DIRECTION_CLOCKWISE)
+    ACCEL(200)  
+    SPEED(SPEED_MID)
+
+    // 8を通過したら踏切OFF
+    WAIT_SENSOR(8)
+    CROSS(CROSSING_STATUS_OFF)
+
+    // 4を通過したら手前の駅で停車
+    WAIT_SENSOR(4)
+    WAIT_TIME(200)
+    ACCEL(20)  
+    SPEED(SPEED_MID_STOP)
+
+    // 手前の駅を出発
+    WAIT_TIME(5000)
+    ACCEL(200)  
+    SPEED(SPEED_MID)
+
+    // 6を通過したら停車　踏切ON
+    WAIT_SENSOR(6)
+    //WAIT_TIME(1000)
+    ACCEL(50)
+    SPEED(SPEED_LOW)
+    WAIT_SENSOR(7)   
+    WAIT_TIME(600)
+    ACCEL(20)
+    SPEED(SPEED_MID_STOP)
+    CROSS(CROSSING_STATUS_ON)
+    WAIT_TIME(5000)
+
+    // ポイント１を切り替えて駅へ入る
+    POINT_1(POINT_DIRECTION_RIGHT)
+    ACCEL(200)      
+    SPEED(SPEED_MID)
+    // 8を通過
+    WAIT_SENSOR(8)
+    CROSS(CROSSING_STATUS_OFF)
+    // 3を通過
+    WAIT_SENSOR(3)
+    //WAIT_TIME(1000)
+    ACCEL(50)      
+    SPEED(SPEED_LOW)
+    WAIT_TIME(1000)
+    ACCEL(20) 
+    SPEED(40)
+    // 2を通過　２番線へ到着
+    WAIT_SENSOR(1)
+    //WAIT_TIME(500)
+    ACCEL(5)      
+    SPEED(SPEED_STOP)
+  
+    // 停車
+    WAIT_TIME(5000)
+
+    // end of scenario
+    INVALID_DATA()
+};
+
+// The first scenario
 Type_Scenario gbScenario_0[] ={
     // 初期化
     WAIT_TIME(1000)
@@ -275,28 +511,6 @@ Type_Scenario gbScenario_0[] ={
     INVALID_DATA()
 };
 
-
-Type_Scenario gbScenario_1[] ={
-    // 初期化
-    WAIT_TIME(1000)
-    //WAIT_SENSOR(2)
-    SPEED(SPEED_STOP)
-    DIRECTION(TRAIN_DIRECTION_COUNTERCLOCKWISE)
-    WAIT_TIME(1000)
-
-    // ポイント位置初期化
-    POINT_1(POINT_DIRECTION_LEFT)
-    WAIT_TIME(2000)
-    POINT_1(POINT_DIRECTION_RIGHT)
-
-    POINT_2(POINT_DIRECTION_LEFT)
-    WAIT_TIME(2000)
-    POINT_2(POINT_DIRECTION_RIGHT)
-
-    // end of scenario
-    INVALID_DATA()
-};
-
 Type_Scenario gbScenario_2[] ={
     // 初期化
     WAIT_TIME(1000)
@@ -484,6 +698,7 @@ void HandleAutoDriveScenario(void){
     else if(gbScenario[gbSystem.scenario_counter].param_0 == SCN_NOTG_SPEED){
       gbTrain.targetSpeed = gbScenario[gbSystem.scenario_counter].param_1;
       gbIsHC595Update = true;
+      sprintf(myIPV4Str, "Target speed = %d", gbTrain.targetSpeed); // for speed debug
       gbSystem.scenario_counter++;
       updateButtonLedStatus();
       return;

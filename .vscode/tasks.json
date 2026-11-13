@@ -1,0 +1,57 @@
+{
+  // Pico 2W ビルド/書き込みタスク
+  //   Cmd+Shift+B           : Arduino: Compile（デフォルトビルド）
+  //   コマンドパレット > Tasks: Run Task から他のタスクも選択可
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Arduino: Compile",
+      "type": "shell",
+      "command": "${workspaceFolder}/.vscode/arduino-task.sh",
+      "args": ["compile"],
+      "group": { "kind": "build", "isDefault": true },
+      "presentation": { "reveal": "always", "panel": "shared", "clear": false, "close": false },
+      "problemMatcher": {
+        "owner": "arduino",
+        "fileLocation": ["absolute"],
+        "pattern": {
+          "regexp": "^(.*\\.(?:ino|h|cpp|c)):(\\d+):(\\d+):\\s+(warning|error|fatal error):\\s+(.*)$",
+          "file": 1, "line": 2, "column": 3, "severity": 4, "message": 5
+        }
+      }
+    },
+    {
+      "label": "Arduino: Compile & Upload",
+      "type": "shell",
+      "command": "${workspaceFolder}/.vscode/arduino-task.sh",
+      "args": ["build-upload"],
+      "group": { "kind": "test", "isDefault": true },
+      "presentation": { "reveal": "always", "panel": "shared", "clear": false, "close": false },
+      "problemMatcher": {
+        "owner": "arduino",
+        "fileLocation": ["absolute"],
+        "pattern": {
+          "regexp": "^(.*\\.(?:ino|h|cpp|c)):(\\d+):(\\d+):\\s+(warning|error|fatal error):\\s+(.*)$",
+          "file": 1, "line": 2, "column": 3, "severity": 4, "message": 5
+        }
+      }
+    },
+    {
+      "label": "Arduino: Upload (no compile)",
+      "type": "shell",
+      "command": "${workspaceFolder}/.vscode/arduino-task.sh",
+      "args": ["upload"],
+      "presentation": { "reveal": "always", "panel": "shared", "clear": false, "close": false },
+      "problemMatcher": []
+    },
+    {
+      "label": "Arduino: Serial Monitor",
+      "type": "shell",
+      "command": "${workspaceFolder}/.vscode/arduino-task.sh",
+      "args": ["monitor"],
+      "isBackground": false,
+      "presentation": { "reveal": "always", "panel": "dedicated", "focus": true },
+      "problemMatcher": []
+    }
+  ]
+}

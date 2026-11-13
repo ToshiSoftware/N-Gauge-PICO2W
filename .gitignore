@@ -1,0 +1,17 @@
+# WiFi 認証情報（ローカル専用）
+wifi_secrets.h
+
+# macOS / Google Drive
+.DS_Store
+Icon?
+*.gdoc
+*.gsheet
+*.gslides
+
+# build output
+build/
+
+# ローカル専用（GitHub には上げない）
+design_data/
+HTML/
+.theia/
