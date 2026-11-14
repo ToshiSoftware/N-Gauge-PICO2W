@@ -25,10 +25,15 @@ void setTFTFromParams(void){
     for(int i=0; i<NUM_TFT_SENSOR; i++){
       tftSensor[i].isActive = gbSensor[i].status;
     }
+    // Mode buttons (active state)
+    tftButton[4].isActive = (gbSystem.mode == SYSTEM_MODE_MANUAL);
+    tftButton[TFT_BUTTON_SERVICE].isActive = (gbSystem.mode == SYSTEM_MODE_SERVICE);
+    tftButton[6].isActive = gbSystem.isEndless;
     // STRT / RET button label
     ServiceUpdateButton();
 }
 
+#if TFT_UI_DESIGN == 1  // ---- original design ----
 // タッチパネルのボタンにより、内部パラメータをセットする
 void setParamFromTFTUI( void ) {
   if( gbIntCounter > lastUITime + UI_BUTTON_DETECTION_INTARVAL){
@@ -134,6 +139,8 @@ void setParamFromTFTUI( void ) {
   }
 }
  
+#endif // TFT_UI_DESIGN == 1
+
 // 左上（3700, 3785） 右下（160, 300）
 #define LT_X 3700
 #define LT_Y 3785
@@ -158,6 +165,7 @@ void getPositionOnScreen( TS_Point *tsPoint, TS_Point *ScreenPos)
 
 }
 
+#if TFT_UI_DESIGN == 1  // ---- original design ----
 //#define TEXT_OFFSET_X 5
 #define TEXT_OFFSET_Y 21
 
@@ -177,17 +185,21 @@ void drawTFTButton( Type_TFTButton *bt, GFXcanvas16 *canvas ){
     canvas->print(bt->text);
 }
 
+#endif // TFT_UI_DESIGN == 1
+
 void isTFTButtonPressed( Type_TFTButton *bt, TS_Point *screenPos){
     if( screenPos->x > bt->pos_x && screenPos->x < bt->pos_x+bt->width
         && screenPos->y > bt->pos_y && screenPos->y < bt->pos_y+bt->height)
     {
         bt->isPressed = true;
+        bt->touchX = screenPos->x;
     }
     else{
         bt->isPressed = false;
     }
 }
 
+#if TFT_UI_DESIGN == 1  // ---- original design ----
 Type_TFTButton tftButton[NUM_TFT_BUTTONS]=
 {
   {10, 205, 60, 30, ILI9341_ORANGE, ILI9341_NIGHTORANGE, ILI9341_BLACK, 5, 21, "PNT.1", 0, 0},
@@ -200,6 +212,8 @@ Type_TFTButton tftButton[NUM_TFT_BUTTONS]=
   {250, 100, 60, 30, ILI9341_WHITE, ILI9341_NIGHTGREY, ILI9341_BLACK, 5, 21, "LOOP", 0, 0} //,
   //{250, 130, 60, 30, ILI9341_WHITE, ILI9341_RED, ILI9341_WHITE, "----", 0, 0}
 };
+
+#endif // TFT_UI_DESIGN == 1
 
 uint16_t getILI9341Color(uint16_t red, uint16_t green, uint16_t blue)
 {
@@ -216,6 +230,7 @@ uint16_t getILI9341Color(uint16_t red, uint16_t green, uint16_t blue)
 //     drawTFTSensor(canvas);
 // }
 
+#if TFT_UI_DESIGN == 1  // ---- original design ----
 void drawTFTDebugText( GFXcanvas16 *canvas, char *text ){
     canvas->setCursor(10, 185);
     canvas->setTextColor(ILI9341_WHITE);
@@ -242,6 +257,8 @@ void drawTFTRail( GFXcanvas16 *canvas ){
     canvas->writeLine(70, 100, 40, 70, ILI9341_WHITE);
 }
 
+#endif // TFT_UI_DESIGN == 1
+
 Type_TFTSensor tftSensor[NUM_TFT_SENSOR]=
 {
     {1, 50, 80},  // 1
@@ -254,6 +271,7 @@ Type_TFTSensor tftSensor[NUM_TFT_SENSOR]=
     {1, 212, 152}  // 8
 };
 
+#if TFT_UI_DESIGN == 1  // ---- original design ----
 void drawTFTSensor( GFXcanvas16 *canvas )
 {
     for(int i=0; i<NUM_TFT_SENSOR; i++){
@@ -278,11 +296,14 @@ void drawTFTSensor( GFXcanvas16 *canvas )
     }
 }
 
+#endif // TFT_UI_DESIGN == 1
+
 Type_TFTCross tftCross[NUM_TFT_CROSS] = {
     {false, 200, 30}
 };
 
 
+#if TFT_UI_DESIGN == 1  // ---- original design ----
 void drawTFTCross( GFXcanvas16 *canvas ){
 
     for(int i=0; i<NUM_TFT_CROSS; i++){
@@ -317,6 +338,8 @@ void drawTFTCross( GFXcanvas16 *canvas ){
 
 }
 
+#endif // TFT_UI_DESIGN == 1
+
 Type_TFTSignal tftSignal[NUM_TFT_SIGNAL]=
 {
     // {0, 99, 140, 80},
@@ -326,6 +349,7 @@ Type_TFTSignal tftSignal[NUM_TFT_SIGNAL]=
     {1, 99, 75, 95},
     {2, 99, 30, 130}};
 
+#if TFT_UI_DESIGN == 1  // ---- original design ----
 void drawTFTSignal( GFXcanvas16 *canvas ){
     for(int i=0; i<NUM_TFT_SIGNAL; i++){
         // frame
@@ -351,11 +375,14 @@ void drawTFTSignal( GFXcanvas16 *canvas ){
     }
 }
 
+#endif // TFT_UI_DESIGN == 1
+
 Type_TFTPoint tftPoint[NUM_TFT_POINT] = {
     {0, 99},
     {0, 99}
 };
 
+#if TFT_UI_DESIGN == 1  // ---- original design ----
 void drawTFTPoint( GFXcanvas16 *canvas ){
     uint16_t enabledRailColor = ILI9341_RED;
     uint16_t disabledRailColor = ILI9341_NIGHTGREY;
@@ -508,6 +535,8 @@ void drawTFTOthers( GFXcanvas16 *canvas ){
         canvas->drawRect(241, 105, 6, 20, ILI9341_LIGHTGREY);
     }
 }
+
+#endif // TFT_UI_DESIGN == 1
 
 unsigned int sensorPrevious=0;
 

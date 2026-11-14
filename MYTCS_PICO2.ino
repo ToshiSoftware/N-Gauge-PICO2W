@@ -379,6 +379,11 @@ void loop() {
   }
   setParamFromTFTUI();
 
+#if TFT_UI_DESIGN == 2
+  // 走行中は路面電車のイラストを揺らす（電車の周囲だけ部分描画）
+  uiTramAnimate();
+#endif
+
   // 描画フラグなら
   if (flagDrawTFT == true)
   {
@@ -389,7 +394,7 @@ void loop() {
     setTFTFromParams();
 
     // Draw track
-    canvas.fillScreen(0x0000);
+    canvas.fillScreen(TFT_COLOR_BG);
     drawTFTRail(&canvas);
     drawTFTPoint(&canvas);
     drawTFTCross(&canvas);
@@ -414,7 +419,10 @@ void loop() {
     // sprintf(debugText, "%04x", colorTrack);
     // drawTFTDebugText(&canvas, debugText);
 
+#if TFT_UI_DESIGN == 1
     drawTFTDebugText(&canvas, myIPV4Str);
+#endif
+    // 新デザインではデバッグ文字は表示しない（必要なら drawTFTDebugText() を呼ぶ）
    
     // UI buttons
     for(int i=0; i<NUM_TFT_BUTTONS; i++){

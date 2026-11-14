@@ -386,19 +386,19 @@ void ServiceUpdateButton(void){
   if(gbService.state == SVC_STATE_IDLE){
     strcpy(bt->text, "STRT");
     bt->text_offset_x = 5;
-    bt->color_frame = ILI9341_GREENYELLOW;
+    bt->color_frame = SVC_BTN_COL_START;
   }
   else{
     if(gbService.state == SVC_STATE_RETURNING){
       // RET 受付後（駅B で方向転換してホームへ帰還中）
       strcpy(bt->text, "B2ST");
       bt->text_offset_x = 5;
-      bt->color_frame = ILI9341_GREY127;
+      bt->color_frame = SVC_BTN_COL_B2ST;
     }
     else{
       strcpy(bt->text, "RET");
       bt->text_offset_x = 12;
-      bt->color_frame = ILI9341_CYAN;
+      bt->color_frame = SVC_BTN_COL_RET;
     }
   }
 }

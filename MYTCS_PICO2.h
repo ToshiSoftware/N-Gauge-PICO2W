@@ -376,6 +376,60 @@ extern struct repeating_timer st_timer;
 #define ILI9341_NIGHTORANGE 0x3940 // 25% orange
 #define ILI9341_NIGHTGREY   0x3a07 // 25% gray
 
+// ---------------------------------------------------------------
+// TFT UI デザイン切り替え
+//   1 : オリジナルデザイン（pico_util.ino 内の #if TFT_UI_DESIGN == 1 部分）
+//   2 : 新デザイン       （tft_ui_v2.ino）
+//   元に戻すときはここを 1 にしてビルドするだけ（git tag "ui-original" も参照）
+// ---------------------------------------------------------------
+#define TFT_UI_DESIGN 2
+
+// RGB888 -> RGB565
+#define RGB565(r,g,b) ((uint16_t)((((r)&0xF8)<<8)|(((g)&0xFC)<<3)|(((b)&0xF8)>>3)))
+
+#if TFT_UI_DESIGN == 2
+  // 新デザイン用カラーパレット（ダークネイビー基調）
+  #define UI_COL_BG        RGB565( 10,  14,  24)  // 背景
+  #define UI_COL_PANEL     RGB565( 24,  31,  46)  // パネル
+  #define UI_COL_PANEL_HI  RGB565( 38,  47,  66)  // パネル（明）
+  #define UI_COL_BORDER    RGB565( 60,  72,  98)  // 枠線
+  #define UI_COL_TEXT      RGB565(234, 238, 245)  // 文字
+  #define UI_COL_MUTED     RGB565(130, 142, 166)  // 補助文字
+  #define UI_COL_DIM       RGB565( 72,  82, 104)  // 弱い線
+  #define UI_COL_TRACK     RGB565(150, 162, 186)  // 線路
+  #define UI_COL_TRACK_OFF RGB565( 42,  50,  68)  // 開通していない分岐
+  #define UI_COL_ROUTE     RGB565(255, 176,  40)  // 開通ルート / ポイント（アンバー）
+  #define UI_COL_OCCUPIED  RGB565(255,  70,  70)  // センサ在線
+  #define UI_COL_SIG_RED   RGB565(255,  56,  56)
+  #define UI_COL_SIG_YEL   RGB565(255, 206,   0)
+  #define UI_COL_SIG_GRN   RGB565( 40, 228, 112)
+  #define UI_COL_LAMP_OFF  RGB565( 46,  52,  64)
+  #define UI_COL_DIR       RGB565( 40, 200, 255)  // 進行方向（シアン）
+  #define UI_COL_CROSS     RGB565(255,  72,  72)  // 踏切
+  #define UI_COL_SPEED     RGB565( 60, 222, 140)  // 速度バー
+  #define UI_COL_MAN       RGB565(234, 238, 245)  // MAN ボタン
+  #define UI_COL_LOOP      RGB565(180, 150, 255)  // LOOP ボタン
+  #define UI_COL_START     RGB565(170, 240,  60)  // STRT ボタン
+  #define UI_COL_RET       RGB565( 40, 200, 255)  // RET ボタン
+  #define UI_COL_B2ST      RGB565(130, 142, 166)  // B2ST ボタン
+
+  #define TFT_COLOR_BG     UI_COL_BG
+  #define SVC_BTN_COL_START UI_COL_START
+  #define SVC_BTN_COL_RET   UI_COL_RET
+  #define SVC_BTN_COL_B2ST  UI_COL_B2ST
+
+  // 下段ボタン群（LCD 下のハードウェアボタン SW1〜SW8 と位置を合わせる）
+  //   SW(2k+1), SW(2k+2) の上に、グループ k の左半分 / 右半分が来る
+  //   実機で位置がずれる場合はこの 2 つで調整
+  #define UI_SW_ORIGIN_X   0   // SW1 の左端に相当する LCD x 座標
+  #define UI_SW_PITCH      40  // ハードウェアボタンの間隔 [LCD px]
+#else
+  #define TFT_COLOR_BG     ILI9341_BLACK
+  #define SVC_BTN_COL_START ILI9341_GREENYELLOW
+  #define SVC_BTN_COL_RET   ILI9341_CYAN
+  #define SVC_BTN_COL_B2ST  ILI9341_GREY127
+#endif
+
 typedef struct _Type_TFTButton
 {
     int pos_x;
@@ -390,6 +444,8 @@ typedef struct _Type_TFTButton
     char text[16];
     int isPressed;
     int isPressedPrevious;
+    int isActive;  // 状態表示用（MAN/STRT/LOOP の点灯）※新デザインで使用
+    int touchX;    // 押された位置の x 座標（左右どちら半分か判定用）
 }Type_TFTButton;
 
 typedef struct _Type_TFTSensor
@@ -451,6 +507,9 @@ extern void drawTFTPoint( GFXcanvas16 *canvas );
 extern void drawTFTCross( GFXcanvas16 *canvas );
 extern void drawTFTSignal( GFXcanvas16 *canvas );
 extern void setSensorTFTFromHC166(void);
+#if TFT_UI_DESIGN == 2
+extern void uiTramAnimate(void);   // tft_ui_v2.ino
+#endif
 
 // global vals
 extern uint slice_num;
