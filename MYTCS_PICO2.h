@@ -153,7 +153,15 @@ typedef struct _Type_Service
   int departCount; // LOOP ON 中の出発回数
 } Type_Service;
 
+// 出発番線モード（STRT / LOOP で出発する列車の番線）
+#define SVC_TRACK_MODE_1    0  // 1番線の列車のみ
+#define SVC_TRACK_MODE_2    1  // 2番線の列車のみ
+#define SVC_TRACK_MODE_ALT  2  // 1番線・2番線 交互
+#define SVC_TRACK_MODE_DEFAULT SVC_TRACK_MODE_2
+#define NUM_SVC_TRACK_MODE  3
+
 extern Type_Service gbService;
+extern volatile int gbSvcTrackMode;    // SVC_TRACK_MODE_*（loop() で変更、ISR で参照）
 extern volatile int gbSvcStartRequest; // loop() -> ISR : STRT 押下（値=番線 1/2）
 extern volatile int gbSvcRetRequest;   // loop() -> ISR : RET 押下
 extern void ServiceHandleRequests(void);
@@ -473,7 +481,12 @@ typedef struct _Type_TFTPoint{
     int directionPrevious;
 }Type_TFTPoint;
 
-#define NUM_TFT_BUTTONS 7
+#if TFT_UI_DESIGN == 2
+  #define NUM_TFT_BUTTONS 8
+  #define TFT_BUTTON_TRACK 7  // 出発番線の切替（1 / 2 / 交互）
+#else
+  #define NUM_TFT_BUTTONS 7
+#endif
 #define TFT_BUTTON_SERVICE 5  // STRT / RET / B2ST ボタン（旧 AUTO ボタンの位置）
 #define UI_BUTTON_DETECTION_INTARVAL 50 // ms
 extern Type_TFTButton tftButton[];

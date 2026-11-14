@@ -11,7 +11,11 @@
                   駅B: センサ4 付近（6〜4間） センサ7 通過時に判定
     RET 押下  : ボタンが「B2ST」に変わり、次に駅B へ着いた時点で停車し、
                 時計回りに方向転換して元の番線へ戻る
-    出発番線  : 1番線と2番線から交互に出発する（電源投入後の最初だけランダム）
+    出発番線  : gbSvcTrackMode で切替（デフォルト 2番線のみ）
+                  SVC_TRACK_MODE_1   : 1番線の列車のみ出発
+                  SVC_TRACK_MODE_2   : 2番線の列車のみ出発
+                  SVC_TRACK_MODE_ALT : 1番線と2番線から交互に出発（電源投入後の最初だけランダム）
+                切替は次の出発から有効
     自動 RET  : 本線を SVC_AUTO_RET_LAPS 周したら自動で RET
     LOOP ON   : 帰着したら次の電車を自動で出発。SVC_LOOP_MAX_DEPARTS 回出発したら LOOP OFF
     MAN 押下  : その場で自動運転を中止（列車・ポイント等はそのまま）
@@ -208,6 +212,9 @@ volatile int gbSvcRetRequest = 0;
 // 前回出発した番線（0 = 電源投入後まだ出発していない）
 static int svcLastTrack = 0;
 
+// 出発番線モード
+volatile int gbSvcTrackMode = SVC_TRACK_MODE_DEFAULT;
+
 // 割込み内で使う軽量乱数（xorshift32）。種は STRT 押下時にハードウェア乱数から設定
 static uint32_t svcRandState = 0x12345678;
 static uint32_t svcRand(void){
@@ -230,12 +237,21 @@ static void svcLoadSegment(int seg_id, Type_Scenario *arr, int num){
   flagDrawTFT = true;
 }
 
-// 電車を出発させる（番線は交互。電源投入後の最初だけランダム）
+// 電車を出発させる（番線は gbSvcTrackMode に従う。交互モードは電源投入後の最初だけランダム）
 static void svcStartTrain(void){
-  if(svcLastTrack == 0){
-    svcLastTrack = (svcRand() & 0x100) ? 2 : 1;  // 「前回」をランダムに決める
+  int mode = gbSvcTrackMode;
+  if(mode == SVC_TRACK_MODE_1){
+    svcLastTrack = 1;
   }
-  svcLastTrack = (svcLastTrack == 1) ? 2 : 1;
+  else if(mode == SVC_TRACK_MODE_2){
+    svcLastTrack = 2;
+  }
+  else{ // SVC_TRACK_MODE_ALT
+    if(svcLastTrack == 0){
+      svcLastTrack = (svcRand() & 0x100) ? 2 : 1;  // 「前回」をランダムに決める
+    }
+    svcLastTrack = (svcLastTrack == 1) ? 2 : 1;
+  }
   gbService.track = svcLastTrack;
   gbService.lapCount = 0;
   gbService.state = SVC_STATE_RUNNING;

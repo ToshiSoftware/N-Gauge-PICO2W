@@ -8,9 +8,10 @@
     +-------------------------------------------------------------+
     | [MODE] info                                        STEP 000 |  ステータスバー
     +-----------------------------------------+-----------------+-+
-    |                                         | SPEED           |B|
+    |                                         | SPD        FDR >|B|
     |        線路図（センサ/信号/踏切/ポイント）   |  128            |A|  <- 右側の実機フェーダー
-    |                                         | [ MAN  ]        |R|     に隣接する速度バー
+    |                                         | [1 | 2 | <>]    |R|     に隣接する速度バー
+    |                                         | [ MAN  ]        | |  出発番線 1のみ/2のみ/交互
     |                                         | [ STRT ]        | |
     |                                         | [ LOOP ]        | |
     +-----------+-----------+-----------+-----+-----------+-----+-+
@@ -98,10 +99,20 @@ Type_TFTButton tftButton[NUM_TFT_BUTTONS]=
   {UI_GROUP_X(2), UI_GROUP_Y, UI_GROUP_W, UI_GROUP_H, UI_COL_CROSS, UI_COL_PANEL, UI_COL_BG, 0, 0, "CROSSING",  0, 0, 0, 0},
   {UI_GROUP_X(3), UI_GROUP_Y, UI_GROUP_W, UI_GROUP_H, UI_COL_DIR,   UI_COL_PANEL, UI_COL_BG, 0, 0, "DIRECTION", 0, 0, 0, 0},
 
-  {UI_PANEL_X+2,  70, 60, 30, UI_COL_MAN,   UI_COL_PANEL, UI_COL_BG, 0, 0, "MAN",  0, 0, 0, 0},
-  {UI_PANEL_X+2, 106, 60, 30, UI_COL_START, UI_COL_PANEL, UI_COL_BG, 0, 0, "STRT", 0, 0, 0, 0}, // TFT_BUTTON_SERVICE (label set by ServiceUpdateButton)
-  {UI_PANEL_X+2, 142, 60, 30, UI_COL_LOOP,  UI_COL_PANEL, UI_COL_BG, 0, 0, "LOOP", 0, 0, 0, 0}
+  {UI_PANEL_X+2,  88, 60, 26, UI_COL_MAN,   UI_COL_PANEL, UI_COL_BG, 0, 0, "MAN",  0, 0, 0, 0},
+  {UI_PANEL_X+2, 118, 60, 26, UI_COL_START, UI_COL_PANEL, UI_COL_BG, 0, 0, "STRT", 0, 0, 0, 0}, // TFT_BUTTON_SERVICE (label set by ServiceUpdateButton)
+  {UI_PANEL_X+2, 148, 60, 26, UI_COL_LOOP,  UI_COL_PANEL, UI_COL_BG, 0, 0, "LOOP", 0, 0, 0, 0},
+
+  {UI_PANEL_X+2,  58, 60, 24, UI_COL_START, UI_COL_PANEL, UI_COL_BG, 0, 0, "TRACK", 0, 0, 0, 0}  // TFT_BUTTON_TRACK
 };
+
+// 出発番線セレクタで押された区画（0=1番線のみ, 1=2番線のみ, 2=交互）
+static int uiTouchedThird(Type_TFTButton *bt){
+  int sec = (bt->touchX - bt->pos_x) * NUM_SVC_TRACK_MODE / bt->width;
+  if(sec < 0) sec = 0;
+  if(sec >= NUM_SVC_TRACK_MODE) sec = NUM_SVC_TRACK_MODE - 1;
+  return sec;
+}
 
 // グループ内の左右どちらが押されたか（0=左=奇数番SW, 1=右=偶数番SW）
 static int uiTouchedHalf(Type_TFTButton *bt){
@@ -149,6 +160,9 @@ static void uiButtonAction(int idx, int half){
     case TFT_BUTTON_SERVICE: // STRT / RET
       ServiceButtonPressed();
       break;
+    case TFT_BUTTON_TRACK: // 出発番線（次の出発から有効）
+      gbSvcTrackMode = half;  // 0..2 = SVC_TRACK_MODE_1 / _2 / _ALT
+      break;
     case 6: // LOOP
       gbIsHC595Update = true;
       gbSystem.isEndless = 1 - gbSystem.isEndless;
@@ -165,7 +179,7 @@ void setParamFromTFTUI( void ) {
     for(int i=0; i<NUM_TFT_BUTTONS; i++){
       Type_TFTButton *bt = &tftButton[i];
       if(bt->isPressed == true && bt->isPressedPrevious == false){
-        uiButtonAction(i, uiTouchedHalf(bt));
+        uiButtonAction(i, (i == TFT_BUTTON_TRACK) ? uiTouchedThird(bt) : uiTouchedHalf(bt));
         flagDrawTFT = true;
       }
       if(bt->isPressedPrevious != bt->isPressed){
@@ -307,10 +321,45 @@ static void drawTFTModeButton(Type_TFTButton *bt, GFXcanvas16 *c){
   }
 }
 
+// 出発番線セレクタ（1 / 2 / 交互 の 3 区画）
+static void drawTFTTrackSelector(Type_TFTButton *bt, GFXcanvas16 *c){
+  int x = bt->pos_x, y = bt->pos_y, w = bt->width, h = bt->height;
+  uint16_t accent = bt->color_frame;
+  int sel = gbSvcTrackMode;
+
+  c->fillRoundRect(x, y, w, h, 6, UI_COL_PANEL);
+  c->drawRoundRect(x, y, w, h, 6, bt->isPressed ? UI_COL_TEXT : UI_COL_BORDER);
+  int sw = (w - 4) / NUM_SVC_TRACK_MODE;  // 区画の幅
+  for(int k=0; k<NUM_SVC_TRACK_MODE; k++){
+    int sx = x + 2 + k*sw;
+    int on = (k == sel);
+    if(on){
+      c->fillRoundRect(sx, y + 2, sw, h - 4, 4, accent);
+    }
+    uint16_t fg = on ? UI_COL_BG : UI_COL_MUTED;
+    int cx = sx + sw/2, cy = y + h/2;
+    if(k == SVC_TRACK_MODE_1){
+      uiTextCenter(c, "1", cx, cy, &FreeSansBold9pt7b, fg);
+    }
+    else if(k == SVC_TRACK_MODE_2){
+      uiTextCenter(c, "2", cx, cy, &FreeSansBold9pt7b, fg);
+    }
+    else{ // 交互：左右の矢印
+      c->drawFastHLine(cx - 5, cy - 3, 9, fg);
+      c->fillTriangle(cx + 5, cy - 3, cx + 2, cy - 6, cx + 2, cy, fg);
+      c->drawFastHLine(cx - 4, cy + 3, 9, fg);
+      c->fillTriangle(cx - 5, cy + 3, cx - 2, cy, cx - 2, cy + 6, fg);
+    }
+  }
+}
+
 void drawTFTButton( Type_TFTButton *bt, GFXcanvas16 *canvas ){
   int idx = bt - tftButton;
   if(idx >= 0 && idx < 4){
     drawTFTSwitchGroup(idx, bt, canvas);
+  }
+  else if(idx == TFT_BUTTON_TRACK){
+    drawTFTTrackSelector(bt, canvas);
   }
   else{
     drawTFTModeButton(bt, canvas);
@@ -318,6 +367,10 @@ void drawTFTButton( Type_TFTButton *bt, GFXcanvas16 *canvas ){
 }
 
 // ---------------- track diagram ----------------
+// 線路図全体の縦方向オフセット（ステータスバーと下段ボタンの間で上下中央に配置）
+//   座標表（tftSensor / tftCross / tftSignal）は元デザインと共通のまま、描画時にずらす
+#define UI_TRACK_DY  7
+#define TY(y)        ((y) + UI_TRACK_DY)
 
 void drawTFTDebugText( GFXcanvas16 *canvas, char *text ){
   uiText(canvas, text, 4, 174, NULL, UI_COL_DIM);
@@ -327,7 +380,7 @@ void drawTFTDebugText( GFXcanvas16 *canvas, char *text ){
 // 線路内の空きスペースに置く路面電車のイラスト（クリーム＋オレンジの旧型車をモチーフ）
 // (x0, y0) = 車体屋根の左上。全体の大きさは約 76x50（架線 y0-15 〜 レール y0+35）
 #define UI_TRAM_X  122
-#define UI_TRAM_Y  46
+#define UI_TRAM_Y  TY(46)
 
 #define TRAM_COL_CREAM   RGB565(226, 210, 160)
 #define TRAM_COL_ORANGE  RGB565(228,  96,  42)
@@ -453,26 +506,26 @@ void drawTFTRail( GFXcanvas16 *canvas ){
 
   // 本線（周回）
   for(int d=-1; d<=1; d++){
-    canvas->drawRoundRect(20+d, 20+d, 200-2*d, 141-2*d, 30-d, UI_COL_TRACK);
+    canvas->drawRoundRect(20+d, TY(20+d), 200-2*d, 141-2*d, 30-d, UI_COL_TRACK);
   }
   // 構内侵入
-  uiThickLine(canvas, 170, 160, 110, 100, UI_COL_TRACK);
+  uiThickLine(canvas, 170, TY(160), 110, TY(100), UI_COL_TRACK);
   // ホーム１
-  uiThickLine(canvas, 110, 100, 60, 50, UI_COL_TRACK);
+  uiThickLine(canvas, 110, TY(100), 60, TY(50), UI_COL_TRACK);
   // ホーム２
-  uiThickLine(canvas, 110, 100, 70, 100, UI_COL_TRACK);
-  uiThickLine(canvas, 70, 100, 40, 70, UI_COL_TRACK);
+  uiThickLine(canvas, 110, TY(100), 70, TY(100), UI_COL_TRACK);
+  uiThickLine(canvas, 70, TY(100), 40, TY(70), UI_COL_TRACK);
   // 車止め
-  canvas->writeLine(56, 54, 64, 46, UI_COL_TRACK);
-  canvas->writeLine(55, 53, 63, 45, UI_COL_TRACK);
-  canvas->writeLine(36, 74, 44, 66, UI_COL_TRACK);
-  canvas->writeLine(35, 73, 43, 65, UI_COL_TRACK);
+  canvas->writeLine(56, TY(54), 64, TY(46), UI_COL_TRACK);
+  canvas->writeLine(55, TY(53), 63, TY(45), UI_COL_TRACK);
+  canvas->writeLine(36, TY(74), 44, TY(66), UI_COL_TRACK);
+  canvas->writeLine(35, TY(73), 43, TY(65), UI_COL_TRACK);
 }
 
 void drawTFTSensor( GFXcanvas16 *canvas )
 {
   for(int i=0; i<NUM_TFT_SENSOR; i++){
-    int x = tftSensor[i].pos_x, y = tftSensor[i].pos_y;
+    int x = tftSensor[i].pos_x, y = TY(tftSensor[i].pos_y);
     if( tftSensor[i].isActive == true){
       canvas->drawRoundRect(x-7, y-7, 15, 15, 3, uiDim(UI_COL_OCCUPIED));
       canvas->fillRoundRect(x-5, y-5, 11, 11, 2, UI_COL_OCCUPIED);
@@ -486,7 +539,7 @@ void drawTFTSensor( GFXcanvas16 *canvas )
 
 void drawTFTCross( GFXcanvas16 *canvas ){
   for(int i=0; i<NUM_TFT_CROSS; i++){
-    int x = tftCross[i].pos_x, y = tftCross[i].pos_y;
+    int x = tftCross[i].pos_x, y = TY(tftCross[i].pos_y);
     int active = (tftCross[i].isActive == true);
     canvas->fillRoundRect(x, y, 30, 20, 6, UI_COL_PANEL);
     canvas->drawRoundRect(x, y, 30, 20, 6, active ? UI_COL_CROSS : UI_COL_BORDER);
@@ -502,7 +555,7 @@ void drawTFTCross( GFXcanvas16 *canvas ){
 
 void drawTFTSignal( GFXcanvas16 *canvas ){
   for(int i=0; i<NUM_TFT_SIGNAL; i++){
-    int x = tftSignal[i].pos_x, y = tftSignal[i].pos_y;
+    int x = tftSignal[i].pos_x, y = TY(tftSignal[i].pos_y);
     canvas->fillRoundRect(x+2, y, 16, 40, 8, UI_COL_PANEL);
     canvas->drawRoundRect(x+2, y, 16, 40, 8, UI_COL_BORDER);
     // 上から 緑 / 黄 / 赤
@@ -522,31 +575,31 @@ void drawTFTPoint( GFXcanvas16 *canvas ){
 
   // point 1 : 170,160 分岐側(→120,110) / 直進側(→110,160)
   int p1r = (tftPoint[0].direction == POINT_DIRECTION_RIGHT);
-  uiThickLine(canvas, 170, 160, 120, 110, p1r ? on : off);
-  uiThickLine(canvas, 170, 160, 110, 160, p1r ? off : on);
-  canvas->fillCircle(170, 160, 3, on);
+  uiThickLine(canvas, 170, TY(160), 120, TY(110), p1r ? on : off);
+  uiThickLine(canvas, 170, TY(160), 110, TY(160), p1r ? off : on);
+  canvas->fillCircle(170, TY(160), 3, on);
 
   // point 2 : 110,100 → 60,50（RIGHT） / → 70,100 → 40,70（LEFT）
   int p2r = (tftPoint[1].direction == POINT_DIRECTION_RIGHT);
-  uiThickLine(canvas, 110, 100, 60, 50, p2r ? on : off);
-  uiThickLine(canvas, 110, 100, 70, 100, p2r ? off : on);
-  uiThickLine(canvas, 70, 100, 40, 70, p2r ? off : on);
-  canvas->fillCircle(110, 100, 3, on);
+  uiThickLine(canvas, 110, TY(100), 60, TY(50), p2r ? on : off);
+  uiThickLine(canvas, 110, TY(100), 70, TY(100), p2r ? off : on);
+  uiThickLine(canvas, 70, TY(100), 40, TY(70), p2r ? off : on);
+  canvas->fillCircle(110, TY(100), 3, on);
 }
 
 void drawTFTDirection( GFXcanvas16 *canvas, int direction ){
   // 1:左上、2:右上、4:右下、8:左下
-  canvas->drawCircleHelper(180, 120, 30, 4, UI_COL_DIR);
-  canvas->drawCircleHelper(180, 120, 29, 4, UI_COL_DIR);
-  canvas->drawCircleHelper(60, 60, 30, 1, UI_COL_DIR);
-  canvas->drawCircleHelper(60, 60, 29, 1, UI_COL_DIR);
+  canvas->drawCircleHelper(180, TY(120), 30, 4, UI_COL_DIR);
+  canvas->drawCircleHelper(180, TY(120), 29, 4, UI_COL_DIR);
+  canvas->drawCircleHelper(60, TY(60), 30, 1, UI_COL_DIR);
+  canvas->drawCircleHelper(60, TY(60), 29, 1, UI_COL_DIR);
   if(direction == TRAIN_DIRECTION_CLOCKWISE){
-    canvas->fillTriangle(172, 150, 181, 145, 181, 155, UI_COL_DIR); // ◀
-    canvas->fillTriangle( 68,  30,  59,  25,  59,  35, UI_COL_DIR); // ▶
+    canvas->fillTriangle(172, TY(150), 181, TY(145), 181, TY(155), UI_COL_DIR); // ◀
+    canvas->fillTriangle( 68, TY(30),  59, TY(25),  59, TY(35), UI_COL_DIR); // ▶
   }
   else{
-    canvas->fillTriangle(210, 112, 205, 121, 215, 121, UI_COL_DIR); // ▲
-    canvas->fillTriangle( 30,  68,  25,  59,  35,  59, UI_COL_DIR); // ▼
+    canvas->fillTriangle(210, TY(112), 205, TY(121), 215, TY(121), UI_COL_DIR); // ▲
+    canvas->fillTriangle( 30, TY(68),  25, TY(59),  35, TY(59), UI_COL_DIR); // ▼
   }
 }
 
@@ -555,17 +608,16 @@ void drawTFTSpeed( GFXcanvas16 *canvas, int speed ){
   char text[16];
   int isManual = (gbSystem.mode == SYSTEM_MODE_MANUAL);
 
-  uiText(canvas, "SPEED", UI_PANEL_X + 2, UI_BAR_Y, NULL, UI_COL_MUTED);
-  sprintf(text, "%d", speed);
-  uiTextRight(canvas, text, UI_PANEL_R, 52, &FreeSans18pt7b, UI_COL_TEXT);
-
+  uiText(canvas, "SPD", UI_PANEL_X + 2, UI_BAR_Y, NULL, UI_COL_MUTED);
   if(isManual){
-    uiTextRight(canvas, "FADER >", UI_PANEL_R, 57, NULL, UI_COL_DIM);
+    uiTextRight(canvas, "FDR >", UI_PANEL_R, UI_BAR_Y, NULL, UI_COL_DIM);
   }
   else{
     sprintf(text, "TGT %d", gbTrain.targetSpeed);
-    uiTextRight(canvas, text, UI_PANEL_R, 57, NULL, UI_COL_MUTED);
+    uiTextRight(canvas, text, UI_PANEL_R, UI_BAR_Y, NULL, UI_COL_MUTED);
   }
+  sprintf(text, "%d", speed);
+  uiTextRight(canvas, text, UI_PANEL_R, 52, &FreeSans18pt7b, UI_COL_TEXT);
 
   // 速度バー（実機フェーダーの隣）
   int innerTop = UI_BAR_Y + 2;
@@ -616,6 +668,14 @@ void drawTFTOthers( GFXcanvas16 *canvas ){
     }
     uiText(canvas, text, ix, 3, NULL, UI_COL_TEXT);
     ix += strlen(text) * 6 + 12;
+  }
+  else{
+    // 停止中：次に出発する番線のモード
+    const char *dep = (gbSvcTrackMode == SVC_TRACK_MODE_1) ? "DEPART: TRK1 ONLY"
+                    : (gbSvcTrackMode == SVC_TRACK_MODE_2) ? "DEPART: TRK2 ONLY"
+                    : "DEPART: TRK1/2 ALT";
+    uiText(canvas, dep, ix, 3, NULL, UI_COL_MUTED);
+    ix += strlen(dep) * 6 + 12;
   }
   if(gbSystem.isEndless == true){
     sprintf(text, "LOOP #%d", gbService.departCount);
