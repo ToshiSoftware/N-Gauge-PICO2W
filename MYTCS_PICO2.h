@@ -157,7 +157,7 @@ typedef struct _Type_Service
 #define SVC_TRACK_MODE_1    0  // 1番線の列車のみ
 #define SVC_TRACK_MODE_2    1  // 2番線の列車のみ
 #define SVC_TRACK_MODE_ALT  2  // 1番線・2番線 交互
-#define SVC_TRACK_MODE_DEFAULT SVC_TRACK_MODE_2
+#define SVC_TRACK_MODE_DEFAULT SVC_TRACK_MODE_1
 #define NUM_SVC_TRACK_MODE  3
 
 extern Type_Service gbService;

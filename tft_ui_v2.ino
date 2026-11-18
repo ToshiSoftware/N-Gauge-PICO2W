@@ -248,16 +248,16 @@ static void uiIconCross(GFXcanvas16 *c, int cx, int cy, int half, int on, uint16
 
 // Direction : 回転矢印 + CW/CCW
 static void uiIconDir(GFXcanvas16 *c, int cx, int cy, int half, uint16_t fg){
-  int ax = cx, ay = cy - 8, r = 7;
-  if(half == 0){ // CLOCKWISE : 下側を左向きに進む
-    c->drawCircleHelper(ax, ay, r,   1|2|4, fg);
-    c->drawCircleHelper(ax, ay, r-1, 1|2|4, fg);
-    c->fillTriangle(ax - 5, ay + r, ax + 1, ay + r - 4, ax + 1, ay + r + 4, fg);
+  int ax = cx, ay = cy - 4, r = 7;
+  if(half == 0){ // CLOCKWISE : 上側を右向きに進む（矢は上）
+    c->drawCircleHelper(ax, ay, r,   1|4|8, fg);
+    c->drawCircleHelper(ax, ay, r-1, 1|4|8, fg);
+    c->fillTriangle(ax + 5, ay - r, ax - 1, ay - r - 4, ax - 1, ay - r + 4, fg);
     uiTextCenter(c, "CW", cx, cy + 11, NULL, fg);
-  } else {       // COUNTERCLOCKWISE : 下側を右向きに進む
-    c->drawCircleHelper(ax, ay, r,   1|2|8, fg);
-    c->drawCircleHelper(ax, ay, r-1, 1|2|8, fg);
-    c->fillTriangle(ax + 5, ay + r, ax - 1, ay + r - 4, ax - 1, ay + r + 4, fg);
+  } else {       // COUNTERCLOCKWISE : 上側を左向きに進む（矢は上）
+    c->drawCircleHelper(ax, ay, r,   2|4|8, fg);
+    c->drawCircleHelper(ax, ay, r-1, 2|4|8, fg);
+    c->fillTriangle(ax - 5, ay - r, ax + 1, ay - r - 4, ax + 1, ay - r + 4, fg);
     uiTextCenter(c, "CCW", cx, cy + 11, NULL, fg);
   }
 }
