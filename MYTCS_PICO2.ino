@@ -269,8 +269,9 @@ void setup() {
   ts.begin();
   ts.setRotation(3);
 
-  // TEST LED on Board
+  // On-board LED : 常時消灯
   pinMode(LED_BUILTIN, OUTPUT);
+  digitalWrite(LED_BUILTIN, LOW);
 
   // init screen
   flagDrawTFT = true;
@@ -429,11 +430,9 @@ void loop() {
       drawTFTButton( &tftButton[i], &canvas);
     }
     // the bitmap copy below takes long time 80ms
-    digitalWrite(PIN_TEST_TFT, HIGH); // LED on board
-    digitalWrite(LED_BUILTIN, HIGH); // LED on board
+    digitalWrite(PIN_TEST_TFT, HIGH); // timing test pin
     tft.drawRGBBitmap(0, 0, canvas.getBuffer(), TFT_WIDTH, TFT_HEIGHT);
     digitalWrite(PIN_TEST_TFT, LOW);
-    digitalWrite(LED_BUILTIN, LOW);
   }
 
 }
